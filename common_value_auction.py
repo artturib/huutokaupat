@@ -104,6 +104,31 @@ def _(mo):
 
     Voittaja maksaa $p_{n-1}$.
 
+    **Kaavan intuitio merkki merkiltä:**
+
+    - $p_k$ — hinta, jolla $k$:nneksi matalin tarjoaja tippuu pois. Jokainen dropout paljastaa
+      signaalinsa: $s_{(k:n)} \approx p_k$.
+
+    - $s_{(k:n)}$ — tippuvan tarjoajan oma signaali. Se on kohinainen mittaus $V$:stä:
+      $s_{(k:n)} = V + \varepsilon_{(k:n)}$.
+
+    - $2\,s_{(k:n)}$ — oma signaali lasketaan **kahdesti**. Tämä tulee siitä, että tippumispäätös
+      on relevantti vain tilanteessa, jossa olet *juuri* tasapelissä seuraavaksi tippuvan kanssa.
+      Tasapeli tarkoittaa: kuvittele, että joku toinen tarjoaja on täsmälleen sinun signaalisi
+      kohdalla. Nyt sinulla on käytettävissä $k+1$ havaintoa $V$:stä — $k-1$ paljastunutta
+      dropoutia plus oma signaali kahdesti (oma $+$ kuvitteellinen tasapelissä olija).
+
+    - $\sum_{j=1}^{k-1} p_j$ — kaikkien aiempien dropoutien hinnat, jotka ovat paljastaneet
+      $k-1$ signaalia $V$:stä.
+
+    - Jako $(k+1)$ — nimittäjä on havaintojen lukumäärä $(k-1) + 2 = k+1$, joten kaava on
+      yksinkertaisesti **kaikkien käytettävissä olevien havaintojen keskiarvo** $V$:stä.
+      Tämä on paras estimaatti $V$:stä litteällä priorilla.
+
+    Koko kaava sanottuna auki: *tipun pois sillä hinnalla, jolla — jos olisin tasapelissä
+    toisen kanssa — paras estimaattini $V$:stä täsmälleen yhtäläinen hinnan kanssa.
+    Alla siitä kannattaa jäädä, yllä siitä kannattaa nousta.*
+
     **Esimerkki $n=4$:**
 
     $$p_1 = s_{(1:4)}, \qquad p_2 = \frac{s_{(1:4)} + 2\,s_{(2:4)}}{3}, \qquad p_3 = \frac{2\,s_{(3:4)} + p_1 + p_2}{4}$$
