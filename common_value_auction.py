@@ -144,6 +144,32 @@ def _(mo):
 
     **Linkage Principle** (Milgrom–Weber 1982): informaatiopaljastus hyödyttää myyjää —
     englantilainen rationaalinen tuottaa aina pienemmän utiliteetin voittajalle kuin suljettu rationaalinen.
+
+    **Miksi paljastuva informaatio nostaa hintaa eikä laske sitä?**
+
+    Ensiajatus saattaa olla: näen muiden tippuvan matalilla hinnoilla → päivitän $V$:n estimaattini
+    alaspäin → tipun aikaisemmin → hinta laskee. Mutta tämä vertaa väärään lähtökohtaan.
+
+    Oikea vertailu on suljettuun *rationaaliseen* strategiaan. Siinä toiseksi korkein tarjoaja
+    sheidaa signaalinsa kiinteällä $\delta$:lla riippumatta siitä, mitä muut tarjosivat:
+
+    $$\text{suljettu hinta} = s_{(n-1:n)} - \delta$$
+
+    Sheidaus $\delta$ on vakio — se ei riipu $V$:stä. Myyjä menettää aina saman summan.
+
+    Englantilaisessa toiseksi korkein tarjoaja sen sijaan **päivittää kynnystään** havaittujen
+    dropoutien perusteella. Kun dropoutit tapahtuvat korkeilla hinnoilla (merkki siitä, että $V$
+    on korkea), toiseksi korkeimman kynnys nousee. Kun dropoutit ovat matalia ($V$ matala),
+    kynnys laskee.
+
+    Tämä tarkoittaa: **englantilaisessa hinta on positiivisesti korreloitunut $V$:n kanssa**,
+    suljetussa ei. Voittaja saa "alennuksen" $\delta$ vain suljetussa — ja se on *vakio*,
+    riippumaton siitä onko $V$ korkea vai matala.
+
+    Konkreettisesti: kun $V$ on korkea ja voittaminen on arvokkainta, englantilaisessa hinta
+    nousee eniten (korkeat dropoutit nostavat toiseksi korkeimman kynnystä). Juuri silloin
+    voittajan surplus pienenee eniten. Myyjä saa siis suuremman osuuden nimenomaan
+    hyvistä realisaatioista.
     """)
     return
 
