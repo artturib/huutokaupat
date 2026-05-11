@@ -27,14 +27,19 @@ def _(mo):
     Jokainen tarjoaja jättää salaisen tarjouksen. Korkein tarjoaja voittaa ja **maksaa toiseksi
     korkeimman tarjouksen**.
 
-    ### 2.2 Englantilainen huutokauppa
+    ### 2.2 Suljettu first-price auction
 
-    Hinta nousee jatkuvasti. Kukin tarjoaja **pysyy mukana kunnes hinta ylittää oman strategiansa
-    mukaisen kynnyksen**. Viimeisenä jäljelle jäävä voittaa ja maksaa hinnan, jolla toiseksi
+    Jokainen tarjoaja jättää salaisen tarjouksen. Korkein tarjoaja voittaa ja **maksaa oman
+    tarjouksensa**.
+
+    ### 2.3 Englantilainen huutokauppa
+
+    Hinta nousee jatkuvasti. Kukin tarjoaja pysyy mukana kunnes hinta ylittää oman strategiansa
+    mukaisen kynnyksen. Viimeisenä jäljelle jäävä voittaa ja maksaa hinnan, jolla toiseksi
     viimeinen tippui pois.
 
-    > **Huomio (naiivi):** naiiveilla strategioilla molemmat protokollat tuottavat identtisen
-    > tuloksen — voittaja on se, jonka signaali $s_{(n:n)}$ on korkein, ja hinta on $s_{(n-1:n)}$.
+    > **Huomio (naiivi):** naiiveilla strategioilla suljettu second-price = englantilainen:
+    > voittaja on se, jonka signaali $s_{(n:n)}$ on korkein, ja hinta on $s_{(n-1:n)}$.
 
     ---
 
@@ -44,14 +49,7 @@ def _(mo):
     (kasvavassa järjestyksessä). Koska $\varepsilon_i \sim \text{Uniform}(-e, e)$,
     $k$:nnen järjestysstatistiikan odotusarvo on
 
-    $$\mathbb{E}[\varepsilon_{(k:n)}] = -e + 2e \cdot \frac{k}{n+1} = e \cdot \frac{2k - n - 1}{n+1}$$
-
-    Erityisesti:
-
-    | Järjestysstatistiikka | Odotusarvo |
-    |---|---|
-    | Maksimi $\varepsilon_{(n:n)}$ | $\displaystyle e\cdot\frac{n-1}{n+1}$ |
-    | Toiseksi suurin $\varepsilon_{(n-1:n)}$ | $\displaystyle e\cdot\frac{n-3}{n+1}$ |
+    $$\mathbb{E}[\varepsilon_{(k:n)}] = e \cdot \frac{2k - n - 1}{n+1}$$
 
     ---
 
@@ -59,50 +57,61 @@ def _(mo):
 
     Tarjoaja tarjoaa suoraan signaalinsa: $b_i = s_i$.
 
-    **Voittajan utility:**
-
-    $$U_{\text{naiivi}} = V - s_{(n-1:n)} = -\varepsilon_{(n-1:n)}$$
-
-    **Odotettu utility:**
-
     $$\mathbb{E}[U_{\text{naiivi}}] = e \cdot \frac{3-n}{n+1}$$
 
     Tämä on **negatiivinen kun $n > 3$** — winner's curse iskee.
 
     ---
 
-    ## 5. Suljettu rationaalinen strategia
+    ## 5. Suljettu second-price rationaalinen
 
-    Rationaalinen tarjoaja huomaa: *jos voitan, signaalini oli korkein, eli $\varepsilon_i = \varepsilon_{(n:n)}$.*
-    Optimaalinen tarjous on ehdollinen odotusarvo siitä, mitä kohde on *jos voitan*:
+    $$b_i^* = s_i - \delta, \qquad \delta = e\cdot\frac{n-1}{n+1}$$
 
-    $$b_i^* = \mathbb{E}[V \mid s_i,\; \varepsilon_i = \varepsilon_{(n:n)}] = s_i - \underbrace{e\cdot\frac{n-1}{n+1}}_{\delta}$$
-
-    **Odotettu utility:**
-
-    $$\mathbb{E}[U_{\text{suljettu, rat}}] = \frac{2e}{n+1} > 0 \quad \text{aina}$$
-
-    Tasapainoehto: marginaalivoitoilla $\mathbb{E}[U] = 0$, joten sheidauksesta ei kannata
-    poiketa kumpaan suuntaan.
+    $$\mathbb{E}[U_{\text{2nd, rat}}] = \frac{2e}{n+1} > 0 \quad \text{aina}$$
 
     ---
 
-    ## 6. Englantilainen rationaalinen strategia
+    ## 6. Suljettu first-price rationaalinen
 
-    Englantilaisen huutokaupan avoimuus paljastaa informaatiota: kun tarjoaja tippuu pois
-    hinnalla $p_k$, muut oppivat hänen signaalinsa $s_{(k:n)} \approx p_k$.
+    Symmetrisessä BNE:ssä tarjoaja $i$ valitsee $b(s_i)$. Ensimmäisen asteen ehto johtaa ODE:hen:
+
+    $$2e \cdot b'(s) + n \cdot b(s) = ns - e(n-2)$$
+
+    Ratkaisu vakiovakiolla $C = 0$:
+
+    $$\boxed{b^*(s_i) = s_i - e}$$
+
+    Tarkistus: $2e \cdot 1 + n(s-e) = ns - e(n-2) \implies 2e - ne = -e(n-2)\ \checkmark$
+
+    Sheidaus on $e$ — koko kohinan laajuus, enemmän kuin second-pricessa ($\delta < e$).
+    Intuitio: tarjoaja sheidaa signaalinsa **alimpaan mahdolliseen** $V$:n arvioon,
+    sillä $V \geq s_i - e$ aina.
+
+    **Odotettu utility:**
+
+    $$U_{\text{1st}} = V - b^*(s_{(n:n)}) = V - s_{(n:n)} + e = e - \varepsilon_{(n:n)}$$
+
+    $$\mathbb{E}[U_{\text{1st, rat}}] = e - e\cdot\frac{n-1}{n+1} = \frac{2e}{n+1}$$
+
+    **Revenue equivalence:** first-price ja second-price tuottavat **saman odotetun tulon
+    myyjälle** ($V - 2e/(n+1)$). Tämä pätee vaikka kyseessä on common value -huutokauppa,
+    koska signaalit ovat ehdollisesti riippumattomia $V$:n suhteen.
+
+    **Miksi bid on deterministinen?** Koska signaali $s_i$ on jo satunnaisesti vedetty,
+    $b^*(s_i) = s_i - e$ on deterministinen funktio tyypistä. Satunnaisuus syntyy signaalien
+    vaihtelusta, ei ylimääräisestä sekoittamisesta (Harsanyin purifiointiperiaate).
+
+    ---
+
+    ## 7. Englantilainen rationaalinen strategia
 
     **Milgrom–Weber (1982) tasapainoehto** ("almost tied"):
-    tarjoaja tippuu pois hinnalla, jolla hän olisi tasapelissä toiseksi viimeisen kanssa:
 
-    $$b^*_j = \mathbb{E}\!\left[V \;\middle|\; s_j,\; s_{(1)}=p_1,\ldots,s_{(k)}=p_k,\; s_\text{tied}=s_j\right] = \frac{2s_j + \sum_{i=1}^k p_i}{k+2}$$
+    $$b^*_j = \frac{2s_j + \sum_{i=1}^k p_i}{k+2}$$
 
-    Oma signaali lasketaan **kahdesti** (oma + kuvitteellinen tasapelissä olija).
-    Tästä seuraa rekursiivinen tippumissekvenssi:
+    Rekursiivinen tippumissekvenssi:
 
     $$\boxed{p_k = \frac{2\,s_{(k:n)} + \sum_{j=1}^{k-1} p_j}{k+1}}, \qquad k = 1, \ldots, n-1$$
-
-    Voittaja maksaa $p_{n-1}$.
 
     **Kaavan intuitio merkki merkiltä:**
 
@@ -123,53 +132,21 @@ def _(mo):
 
     - Jako $(k+1)$ — nimittäjä on havaintojen lukumäärä $(k-1) + 2 = k+1$, joten kaava on
       yksinkertaisesti **kaikkien käytettävissä olevien havaintojen keskiarvo** $V$:stä.
-      Tämä on paras estimaatti $V$:stä litteällä priorilla.
-
-    Koko kaava sanottuna auki: *tipun pois sillä hinnalla, jolla — jos olisin tasapelissä
-    toisen kanssa — paras estimaattini $V$:stä täsmälleen yhtäläinen hinnan kanssa.
-    Alla siitä kannattaa jäädä, yllä siitä kannattaa nousta.*
-
-    **Esimerkki $n=4$:**
-
-    $$p_1 = s_{(1:4)}, \qquad p_2 = \frac{s_{(1:4)} + 2\,s_{(2:4)}}{3}, \qquad p_3 = \frac{2\,s_{(3:4)} + p_1 + p_2}{4}$$
-
-    **Odotettu utility** (johdetaan rekursiivisesti järjestysstatistiikkojen odotusarvoista):
-
-    | $n$ | $\mathbb{E}[U_{\text{eng, rat}}]$ | $\mathbb{E}[U_{\text{suljettu, rat}}]$ |
-    |---|---|---|
-    | 2 | $e/3$ | $2e/3$ |
-    | 3 | $e/6$ | $e/2$ |
-    | 4 | $2e/15$ | $2e/5$ |
-    | 5 | $13e/90$ | $e/3$ |
 
     **Linkage Principle** (Milgrom–Weber 1982): informaatiopaljastus hyödyttää myyjää —
     englantilainen rationaalinen tuottaa aina pienemmän utiliteetin voittajalle kuin suljettu rationaalinen.
 
     **Miksi paljastuva informaatio nostaa hintaa eikä laske sitä?**
 
-    Ensiajatus saattaa olla: näen muiden tippuvan matalilla hinnoilla → päivitän $V$:n estimaattini
-    alaspäin → tipun aikaisemmin → hinta laskee. Mutta tämä vertaa väärään lähtökohtaan.
+    Oikea vertailu on suljettuun *rationaaliseen* strategiaan, jossa sheidaus $\delta$ on vakio
+    ja riippumaton $V$:stä. Englantilaisessa toiseksi korkein tarjoaja päivittää kynnystään
+    havaittujen dropoutien perusteella — korkeat dropoutit (merkki korkeasta $V$:stä) nostavat
+    kynnystä. **Hinta on positiivisesti korreloitunut $V$:n kanssa**: myyjä saa enemmän juuri
+    silloin kun voittaminen on arvokkainta.
 
-    Oikea vertailu on suljettuun *rationaaliseen* strategiaan. Siinä toiseksi korkein tarjoaja
-    sheidaa signaalinsa kiinteällä $\delta$:lla riippumatta siitä, mitä muut tarjosivat:
+    **Tuottoranking myyjälle:**
 
-    $$\text{suljettu hinta} = s_{(n-1:n)} - \delta$$
-
-    Sheidaus $\delta$ on vakio — se ei riipu $V$:stä. Myyjä menettää aina saman summan.
-
-    Englantilaisessa toiseksi korkein tarjoaja sen sijaan **päivittää kynnystään** havaittujen
-    dropoutien perusteella. Kun dropoutit tapahtuvat korkeilla hinnoilla (merkki siitä, että $V$
-    on korkea), toiseksi korkeimman kynnys nousee. Kun dropoutit ovat matalia ($V$ matala),
-    kynnys laskee.
-
-    Tämä tarkoittaa: **englantilaisessa hinta on positiivisesti korreloitunut $V$:n kanssa**,
-    suljetussa ei. Voittaja saa "alennuksen" $\delta$ vain suljetussa — ja se on *vakio*,
-    riippumaton siitä onko $V$ korkea vai matala.
-
-    Konkreettisesti: kun $V$ on korkea ja voittaminen on arvokkainta, englantilaisessa hinta
-    nousee eniten (korkeat dropoutit nostavat toiseksi korkeimman kynnystä). Juuri silloin
-    voittajan surplus pienenee eniten. Myyjä saa siis suuremman osuuden nimenomaan
-    hyvistä realisaatioista.
+    $$\mathbb{E}[\text{hinta}]:\quad \text{naiivi} \geq \text{eng. rat.} \geq \text{suljettu 2nd rat.} = \text{suljettu 1st rat.}$$
     """)
     return
 
@@ -178,7 +155,7 @@ def _(mo):
 def _(mo):
     mo.md("""
     ---
-    ## 7. Simulaatio
+    ## 8. Simulaatio
     """)
     return
 
@@ -201,35 +178,38 @@ def _(np, slider_N, slider_V, slider_e, slider_n):
     N_sim = slider_N.value
     rng = np.random.default_rng(42)
 
-    # Signals: (N_sim, n)
     eps = rng.uniform(-e, e, size=(N_sim, n))
     signals = V + eps
-    sorted_s = np.sort(signals, axis=1)  # ascending
+    sorted_s = np.sort(signals, axis=1)
 
-    # --- Naive strategy (suljettu = englantilainen) ---
+    # --- Naiivi (suljettu 2nd = englantilainen) ---
     price_naive   = sorted_s[:, -2]
     utility_naive = V - price_naive
 
-    # --- Suljettu rationaalinen ---
+    # --- Suljettu second-price rationaalinen ---
     delta          = e * (n - 1) / (n + 1)
-    bids_rational  = signals - delta
-    sorted_rat     = np.sort(bids_rational, axis=1)
-    price_rational = sorted_rat[:, -2]
-    utility_rational = V - price_rational
+    bids_2nd       = signals - delta
+    price_2nd_rat  = np.sort(bids_2nd, axis=1)[:, -2]
+    utility_2nd_rat = V - price_2nd_rat
+
+    # --- Suljettu first-price rationaalinen: b*(s) = s - e ---
+    bids_1st       = signals - e
+    price_1st_rat  = np.max(bids_1st, axis=1)   # voittaja maksaa oman tarjouksensa
+    utility_1st_rat = V - price_1st_rat
 
     # --- Englantilainen rationaalinen (Milgrom-Weber) ---
-    cumsums_eng      = np.zeros(N_sim)
-    dropout_eng      = np.zeros((N_sim, n - 1))
+    cumsums_eng = np.zeros(N_sim)
+    dropout_eng = np.zeros((N_sim, n - 1))
     for _k in range(1, n):
         _p = (2 * sorted_s[:, _k - 1] + cumsums_eng) / (_k + 1)
         dropout_eng[:, _k - 1] = _p
         cumsums_eng += _p
-    price_english_rational  = dropout_eng[:, -1]
-    utility_english_rational = V - price_english_rational
+    price_eng_rat   = dropout_eng[:, -1]
+    utility_eng_rat = V - price_eng_rat
 
     # --- Analyyttiset odotusarvot ---
-    eu_naive_formula    = e * (3 - n) / (n + 1)
-    eu_sealed_formula   = 2 * e / (n + 1)
+    eu_naive_formula = e * (3 - n) / (n + 1)
+    eu_sealed_formula = 2 * e / (n + 1)   # sama first- ja second-pricelle
 
     def _eu_eng(n_val, e_val):
         mu = np.array([e_val * (2*k - n_val - 1) / (n_val + 1) for k in range(1, n_val)])
@@ -239,94 +219,97 @@ def _(np, slider_N, slider_V, slider_e, slider_n):
             cum_err += err
         return -err
 
-    eu_english_formula = _eu_eng(n, e)
+    eu_eng_formula = _eu_eng(n, e)
 
     return (
         V, n, e, N_sim, rng, eps, signals, sorted_s,
         price_naive, utility_naive,
-        delta, bids_rational, price_rational, utility_rational,
-        price_english_rational, utility_english_rational,
-        eu_naive_formula, eu_sealed_formula, eu_english_formula,
+        delta, bids_2nd, price_2nd_rat, utility_2nd_rat,
+        bids_1st, price_1st_rat, utility_1st_rat,
+        price_eng_rat, utility_eng_rat,
+        eu_naive_formula, eu_sealed_formula, eu_eng_formula,
     )
 
 
 @app.cell(hide_code=True)
 def _(
     V, n, e, delta, mo, np,
-    eu_naive_formula, eu_sealed_formula, eu_english_formula,
-    price_naive, price_rational, price_english_rational,
-    utility_naive, utility_rational, utility_english_rational,
+    eu_naive_formula, eu_sealed_formula, eu_eng_formula,
+    price_naive, price_2nd_rat, price_1st_rat, price_eng_rat,
+    utility_naive, utility_2nd_rat, utility_1st_rat, utility_eng_rat,
 ):
     wc_naive  = np.mean(utility_naive < 0) * 100
-    wc_sealed = np.mean(utility_rational < 0) * 100
-    wc_eng    = np.mean(utility_english_rational < 0) * 100
+    wc_2nd    = np.mean(utility_2nd_rat < 0) * 100
+    wc_1st    = np.mean(utility_1st_rat < 0) * 100
+    wc_eng    = np.mean(utility_eng_rat < 0) * 100
     mo.md(f"""
     ### Tulokset: n={n}, e={e}, V={V}, δ={delta:.2f}
 
-    | | Naiivi | Suljettu rat. | Eng. rat. |
-    |---|---|---|---|
-    | **E[utility] — kaava** | {eu_naive_formula:.3f} | {eu_sealed_formula:.3f} | {eu_english_formula:.3f} |
-    | **E[utility] — simulaatio** | {np.mean(utility_naive):.3f} | {np.mean(utility_rational):.3f} | {np.mean(utility_english_rational):.3f} |
-    | **P(utility < 0)** | {wc_naive:.1f}% | {wc_sealed:.1f}% | {wc_eng:.1f}% |
-    | **E[hinta myyjälle]** | {np.mean(price_naive):.2f} | {np.mean(price_rational):.2f} | {np.mean(price_english_rational):.2f} |
+    | | Naiivi | 2nd rat. | 1st rat. | Eng. rat. |
+    |---|---|---|---|---|
+    | **E[utility] — kaava** | {eu_naive_formula:.3f} | {eu_sealed_formula:.3f} | {eu_sealed_formula:.3f} | {eu_eng_formula:.3f} |
+    | **E[utility] — simulaatio** | {np.mean(utility_naive):.3f} | {np.mean(utility_2nd_rat):.3f} | {np.mean(utility_1st_rat):.3f} | {np.mean(utility_eng_rat):.3f} |
+    | **P(utility < 0)** | {wc_naive:.1f}% | {wc_2nd:.1f}% | {wc_1st:.1f}% | {wc_eng:.1f}% |
+    | **E[hinta myyjälle]** | {np.mean(price_naive):.2f} | {np.mean(price_2nd_rat):.2f} | {np.mean(price_1st_rat):.2f} | {np.mean(price_eng_rat):.2f} |
 
-    Linkage Principle: myyjän saama hinta — eng. rat. ({np.mean(price_english_rational):.2f})
-    {">" if np.mean(price_english_rational) > np.mean(price_rational) else "<"}
-    suljettu rat. ({np.mean(price_rational):.2f})
+    Revenue equivalence: 2nd rat. ({np.mean(price_2nd_rat):.2f}) vs 1st rat. ({np.mean(price_1st_rat):.2f})
     """)
-    return wc_naive, wc_sealed, wc_eng
+    return wc_naive, wc_2nd, wc_1st, wc_eng
 
 
 @app.cell
-def _(V, e, n, np, plt, utility_naive, utility_rational, utility_english_rational):
-    fig1, ax1 = plt.subplots(figsize=(9, 4))
-    all_u = np.concatenate([utility_naive, utility_rational, utility_english_rational])
+def _(V, e, n, np, plt, utility_naive, utility_2nd_rat, utility_1st_rat, utility_eng_rat):
+    fig1, ax1 = plt.subplots(figsize=(10, 4))
+    all_u = np.concatenate([utility_naive, utility_2nd_rat, utility_1st_rat, utility_eng_rat])
     bins = np.linspace(all_u.min() - 2, all_u.max() + 2, 60)
-    ax1.hist(utility_naive,             bins=bins, alpha=0.45, color="#e07b39", label="Naiivi")
-    ax1.hist(utility_rational,          bins=bins, alpha=0.45, color="#4c8fd6", label="Suljettu rat.")
-    ax1.hist(utility_english_rational,  bins=bins, alpha=0.45, color="#3daa6a", label="Eng. rat.")
+    ax1.hist(utility_naive,    bins=bins, alpha=0.40, color="#e07b39", label="Naiivi")
+    ax1.hist(utility_2nd_rat,  bins=bins, alpha=0.40, color="#4c8fd6", label="Suljettu 2nd rat.")
+    ax1.hist(utility_1st_rat,  bins=bins, alpha=0.40, color="#9b59b6", label="Suljettu 1st rat.")
+    ax1.hist(utility_eng_rat,  bins=bins, alpha=0.40, color="#3daa6a", label="Eng. rat.")
     ax1.axvline(0, color="black", linewidth=1.2, linestyle="--", label="Utility = 0")
     for u_arr, col in [
         (utility_naive, "#e07b39"),
-        (utility_rational, "#4c8fd6"),
-        (utility_english_rational, "#3daa6a"),
+        (utility_2nd_rat, "#4c8fd6"),
+        (utility_1st_rat, "#9b59b6"),
+        (utility_eng_rat, "#3daa6a"),
     ]:
         ax1.axvline(np.mean(u_arr), color=col, linewidth=2)
     ax1.set_xlabel("Voittajan utility  (V − maksettu hinta)")
     ax1.set_ylabel("Frekvenssi")
     ax1.set_title(f"Voittajan utiliteetin jakauma  (n={n}, e={e}, V={V})")
-    ax1.legend()
+    ax1.legend(fontsize=8)
     fig1.tight_layout()
     fig1
     return fig1, ax1, bins, all_u
 
 
 @app.cell
-def _(V, bids_rational, delta, e, n, np, plt, signals):
+def _(V, bids_2nd, bids_1st, delta, e, n, np, plt, signals):
     idx = np.random.default_rng(0).integers(0, signals.shape[0], 300)
-    s_sample = signals[idx].ravel()
-    b_sample = bids_rational[idx].ravel()
+    s_sample  = signals[idx].ravel()
+    b2_sample = bids_2nd[idx].ravel()
+    b1_sample = bids_1st[idx].ravel()
 
     fig2, ax2 = plt.subplots(figsize=(6, 5))
-    ax2.scatter(s_sample, b_sample, alpha=0.25, s=12, color="#4c8fd6", label="Rationaalinen tarjous")
     s_line = np.linspace(s_sample.min(), s_sample.max(), 100)
-    ax2.plot(s_line, s_line, "k--", linewidth=1, label="b = s  (naiivi)")
-    ax2.plot(s_line, s_line - delta, color="#4c8fd6", linewidth=2, label=f"b = s − δ  (δ={delta:.2f})")
+    ax2.plot(s_line, s_line,         "k--",  linewidth=1,  label="b = s  (naiivi)")
+    ax2.plot(s_line, s_line - delta, color="#4c8fd6", linewidth=2, label=f"2nd rat.: b = s − δ  (δ={delta:.2f})")
+    ax2.plot(s_line, s_line - e,     color="#9b59b6", linewidth=2, label=f"1st rat.: b = s − e  (e={e})")
     ax2.axvline(V, color="gray", linewidth=1, linestyle=":", label=f"V={V}")
     ax2.set_xlabel("Signaali $s_i$")
     ax2.set_ylabel("Tarjous $b_i$")
-    ax2.set_title(f"Bid sheidaus — suljettu rationaalinen  (n={n}, e={e})")
+    ax2.set_title(f"Bid sheidaus vertailu  (n={n}, e={e})")
     ax2.legend(fontsize=8)
     fig2.tight_layout()
     fig2
-    return fig2, ax2, idx, s_sample, b_sample, s_line
+    return fig2, ax2, idx, s_sample, b2_sample, b1_sample, s_line
 
 
 @app.cell
 def _(plt, np, e, n):
     ns = np.arange(2, 31)
     eu_naive_n  = e * (3 - ns) / (ns + 1)
-    eu_sealed_n = 2 * e / (ns + 1)
+    eu_sealed_n = 2 * e / (ns + 1)   # sama 1st ja 2nd
 
     def _eu_eng_arr(e_val):
         out = []
@@ -351,8 +334,8 @@ def _(plt, np, e, n):
     fig3, axes = plt.subplots(1, 2, figsize=(12, 4))
 
     ax_eu = axes[0]
-    ax_eu.plot(ns, eu_naive_n,  color="#e07b39", linewidth=2, label="Naiivi")
-    ax_eu.plot(ns, eu_sealed_n, color="#4c8fd6", linewidth=2, label="Suljettu rat.")
+    ax_eu.plot(ns, eu_naive_n,   color="#e07b39", linewidth=2, label="Naiivi")
+    ax_eu.plot(ns, eu_sealed_n,  color="#4c8fd6", linewidth=2, label="Suljettu 2nd rat. = 1st rat.")
     ax_eu.plot(ns, eu_english_n, color="#3daa6a", linewidth=2, linestyle="--", label="Eng. rat.")
     ax_eu.axhline(0, color="black", linewidth=1, linestyle="--")
     ax_eu.axvline(n, color="gray", linewidth=1, linestyle=":", alpha=0.8)
