@@ -31,3 +31,12 @@ marimo edit common_value_auction.py
 - `n` — tarjoajien määrä
 - `e` — signaalivirheen laajuus
 - `N` — simulaatiokertojen määrä
+
+## Commit-historia
+
+```
+db62fc1 Add README
+5e49b52 Explain why information revelation raises prices (Linkage Principle intuition)
+416ed8f Add intuitive explanation of Milgrom-Weber dropout formula
+a7ae609 Add common value auction simulation (Marimo notebook)
+```
