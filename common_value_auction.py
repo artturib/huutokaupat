@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.4"
+__generated_with = "0.23.1"
 app = marimo.App(width="medium")
 
 
@@ -38,9 +38,6 @@ def _(mo):
     mukaisen kynnyksen. Viimeisenä jäljelle jäävä voittaa ja maksaa hinnan, jolla toiseksi
     viimeinen tippui pois.
 
-    > **Huomio (naiivi):** naiiveilla strategioilla suljettu second-price = englantilainen:
-    > voittaja on se, jonka signaali $s_{(n:n)}$ on korkein, ja hinta on $s_{(n-1:n)}$.
-
     ---
 
     ## 3. Järjestysstatistiikat
@@ -53,7 +50,7 @@ def _(mo):
 
     ---
 
-    ## 4. Naiivi strategia
+    ## 4. Benchmark strategia: jokainen ostaja tarjoaa oman signaalinsa verran
 
     Tarjoaja tarjoaa suoraan signaalinsa: $b_i = s_i$.
 
@@ -147,6 +144,41 @@ def _(mo):
     **Tuottoranking myyjälle:**
 
     $$\mathbb{E}[\text{hinta}]:\quad \text{naiivi} \geq \text{eng. rat.} \geq \text{suljettu 2nd rat.} = \text{suljettu 1st rat.}$$
+
+    ---
+
+    ## 8. ⚠️ KESKEN: Milgrom–Weber-kaavan virhe tasajakaumalla
+
+    Koodi käyttää tippumiskaavaa $p_k = \frac{2s_{(k)} + \sum_{j<k} p_j}{k+1}$, joka perustuu
+    **aritmeettiseen keskiarvoon** estimaattina $V$:stä. Tämä on oikein normaalijakautuneille
+    signaaleille, mutta **väärin tasajakautuneille**.
+
+    **Oikea Bayesilainen päättely tasajakaumalla** ($s_i = V + \varepsilon_i$,
+    $\varepsilon_i \sim U(-e,e)$, tasainen priori $V$:lle):
+
+    Tarjoajan $k$ posteriori oman signaalin $s_k$ jälkeen: $V \sim U(s_k - e,\; s_k + e)$.
+
+    Kun ekan tippumisen hinnasta inferoidaan $s_{(1)}$ (pienin signaali), posteriori päivittyy:
+
+    $$V \sim U(s_k - e,\; s_{(1)} + e)$$
+
+    Tämä **ei muutu** myöhempien tippumisten myötä — vain minimi $s_{(1)}$ ja oma signaali
+    $s_k$ ratkaisevat (väliarvot $s_j \in (s_{(1)}, s_k)$ eivät kavenna tukijoukkoa).
+
+    Posteriorin odotusarvo (= oikea tippumishinta): $\frac{s_k + s_{(1)}}{2}$
+
+    **Oikea tippumisstrategia tasajakaumalle:**
+
+    $$\boxed{p_k = \frac{s_{(k)} + s_{(1)}}{2}}$$
+
+    Voittaja maksaa $p_{n-1} = \frac{s_{(n-1)} + s_{(1)}}{2}$, josta:
+
+    $$\mathbb{E}[\text{myyjän tulo}] = V - \frac{e}{n+1}$$
+
+    Vertailu suljettuun rationaaliseen ($V - \frac{2e}{n+1}$): englantilainen tuottaa enemmän
+    kaikilla $n$. Linkage Principle pätee. ✓
+
+    **TODO:** päivitä simulaatio käyttämään oikeaa strategiaa ja päivitä kaaviot.
     """)
     return
 
@@ -220,23 +252,47 @@ def _(np, slider_N, slider_V, slider_e, slider_n):
         return -err
 
     eu_eng_formula = _eu_eng(n, e)
-
     return (
-        V, n, e, N_sim, rng, eps, signals, sorted_s,
-        price_naive, utility_naive,
-        delta, bids_2nd, price_2nd_rat, utility_2nd_rat,
-        bids_1st, price_1st_rat, utility_1st_rat,
-        price_eng_rat, utility_eng_rat,
-        eu_naive_formula, eu_sealed_formula, eu_eng_formula,
+        V,
+        bids_1st,
+        bids_2nd,
+        delta,
+        e,
+        eu_eng_formula,
+        eu_naive_formula,
+        eu_sealed_formula,
+        n,
+        price_1st_rat,
+        price_2nd_rat,
+        price_eng_rat,
+        price_naive,
+        signals,
+        utility_1st_rat,
+        utility_2nd_rat,
+        utility_eng_rat,
+        utility_naive,
     )
 
 
 @app.cell(hide_code=True)
 def _(
-    V, n, e, delta, mo, np,
-    eu_naive_formula, eu_sealed_formula, eu_eng_formula,
-    price_naive, price_2nd_rat, price_1st_rat, price_eng_rat,
-    utility_naive, utility_2nd_rat, utility_1st_rat, utility_eng_rat,
+    V,
+    delta,
+    e,
+    eu_eng_formula,
+    eu_naive_formula,
+    eu_sealed_formula,
+    mo,
+    n,
+    np,
+    price_1st_rat,
+    price_2nd_rat,
+    price_eng_rat,
+    price_naive,
+    utility_1st_rat,
+    utility_2nd_rat,
+    utility_eng_rat,
+    utility_naive,
 ):
     wc_naive  = np.mean(utility_naive < 0) * 100
     wc_2nd    = np.mean(utility_2nd_rat < 0) * 100
@@ -254,11 +310,21 @@ def _(
 
     Revenue equivalence: 2nd rat. ({np.mean(price_2nd_rat):.2f}) vs 1st rat. ({np.mean(price_1st_rat):.2f})
     """)
-    return wc_naive, wc_2nd, wc_1st, wc_eng
+    return
 
 
 @app.cell
-def _(V, e, n, np, plt, utility_naive, utility_2nd_rat, utility_1st_rat, utility_eng_rat):
+def _(
+    V,
+    e,
+    n,
+    np,
+    plt,
+    utility_1st_rat,
+    utility_2nd_rat,
+    utility_eng_rat,
+    utility_naive,
+):
     fig1, ax1 = plt.subplots(figsize=(10, 4))
     all_u = np.concatenate([utility_naive, utility_2nd_rat, utility_1st_rat, utility_eng_rat])
     bins = np.linspace(all_u.min() - 2, all_u.max() + 2, 60)
@@ -280,11 +346,11 @@ def _(V, e, n, np, plt, utility_naive, utility_2nd_rat, utility_1st_rat, utility
     ax1.legend(fontsize=8)
     fig1.tight_layout()
     fig1
-    return fig1, ax1, bins, all_u
+    return
 
 
 @app.cell
-def _(V, bids_2nd, bids_1st, delta, e, n, np, plt, signals):
+def _(V, bids_1st, bids_2nd, delta, e, n, np, plt, signals):
     idx = np.random.default_rng(0).integers(0, signals.shape[0], 300)
     s_sample  = signals[idx].ravel()
     b2_sample = bids_2nd[idx].ravel()
@@ -302,11 +368,11 @@ def _(V, bids_2nd, bids_1st, delta, e, n, np, plt, signals):
     ax2.legend(fontsize=8)
     fig2.tight_layout()
     fig2
-    return fig2, ax2, idx, s_sample, b2_sample, b1_sample, s_line
+    return
 
 
 @app.cell
-def _(plt, np, e, n):
+def _(e, n, np, plt):
     ns = np.arange(2, 31)
     eu_naive_n  = e * (3 - ns) / (ns + 1)
     eu_sealed_n = 2 * e / (ns + 1)   # sama 1st ja 2nd
@@ -356,12 +422,17 @@ def _(plt, np, e, n):
 
     fig3.tight_layout()
     fig3
-    return fig3, axes, ax_eu, ax_wc, ns, eu_naive_n, eu_sealed_n, eu_english_n, wc_naive_n
+    return
 
 
 @app.cell
-def __():
+def _():
     import marimo as mo
     import numpy as np
     import matplotlib.pyplot as plt
+
     return mo, np, plt
+
+
+if __name__ == "__main__":
+    app.run()
