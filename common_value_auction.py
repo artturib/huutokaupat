@@ -522,29 +522,29 @@ def _(
     n,
     np,
     plt,
-    utility_1st_rat,
-    utility_2nd_rat,
-    utility_eng_rat,
-    utility_naive,
+    price_1st_rat,
+    price_2nd_rat,
+    price_eng_rat,
+    price_naive,
 ):
     fig1, ax1 = plt.subplots(figsize=(10, 4))
-    all_u = np.concatenate([utility_naive, utility_2nd_rat, utility_1st_rat, utility_eng_rat])
-    bins = np.linspace(all_u.min() - 2, all_u.max() + 2, 60)
-    ax1.hist(utility_naive,    bins=bins, alpha=0.40, color="#e07b39", label="Naiivi")
-    ax1.hist(utility_2nd_rat,  bins=bins, alpha=0.40, color="#4c8fd6", label="Suljettu 2nd rat.")
-    ax1.hist(utility_1st_rat,  bins=bins, alpha=0.40, color="#9b59b6", label="Suljettu 1st rat.")
-    ax1.hist(utility_eng_rat,  bins=bins, alpha=0.40, color="#3daa6a", label="Eng. rat.")
-    ax1.axvline(0, color="black", linewidth=1.2, linestyle="--", label="Utility = 0")
-    for u_arr, col in [
-        (utility_naive, "#e07b39"),
-        (utility_2nd_rat, "#4c8fd6"),
-        (utility_1st_rat, "#9b59b6"),
-        (utility_eng_rat, "#3daa6a"),
+    all_p = np.concatenate([price_naive, price_2nd_rat, price_1st_rat, price_eng_rat])
+    bins = np.linspace(all_p.min() - 1, all_p.max() + 1, 60)
+    ax1.hist(price_naive,    bins=bins, alpha=0.40, color="#e07b39", label="Naiivi")
+    ax1.hist(price_2nd_rat,  bins=bins, alpha=0.40, color="#4c8fd6", label="Suljettu 2nd rat.")
+    ax1.hist(price_1st_rat,  bins=bins, alpha=0.40, color="#9b59b6", label="Suljettu 1st rat.")
+    ax1.hist(price_eng_rat,  bins=bins, alpha=0.40, color="#3daa6a", label="Eng. rat.")
+    ax1.axvline(V, color="black", linewidth=1.5, linestyle="--", label=f"V = {V}")
+    for p_arr, col in [
+        (price_naive, "#e07b39"),
+        (price_2nd_rat, "#4c8fd6"),
+        (price_1st_rat, "#9b59b6"),
+        (price_eng_rat, "#3daa6a"),
     ]:
-        ax1.axvline(np.mean(u_arr), color=col, linewidth=2)
-    ax1.set_xlabel("Voittajan utility  (V − maksettu hinta)")
+        ax1.axvline(np.mean(p_arr), color=col, linewidth=2)
+    ax1.set_xlabel("Voittajan maksama hinta")
     ax1.set_ylabel("Frekvenssi")
-    ax1.set_title(f"Voittajan utiliteetin jakauma  (n={n}, e={e}, V={V})")
+    ax1.set_title(f"Maksettujen hintojen jakauma  (n={n}, e={e}, V={V})")
     ax1.legend(fontsize=8)
     fig1.tight_layout()
     fig1
@@ -576,16 +576,23 @@ def _(V, bids_1st, bids_2nd, delta, e, n, np, plt, signals):
 @app.cell
 def _(e, n, np, plt):
     ns = np.arange(2, 31)
-    eu_naive_n  = e * (3 - ns) / (ns + 1)
-    eu_sealed_n = 2 * e / (ns + 1)   # sama 1st ja 2nd
-    eu_english_n = e / (ns + 1)       # oikea BNE tasajakaumalle
+    eu_naive_n   = e * (3 - ns) / (ns + 1)
+    eu_sealed_n  = 2 * e / (ns + 1)
+    eu_english_n = e / (ns + 1)
 
-    wc_naive_n = np.array([
-        np.mean(
-            -np.sort(np.random.default_rng(seed=k).uniform(-e, e, size=(5000, ni)), axis=1)[:, -2] < 0
-        )
-        for k, ni in enumerate(ns)
-    ])
+    wc_naive_n = np.zeros(len(ns))
+    wc_2nd_n   = np.zeros(len(ns))
+    wc_1st_n   = np.zeros(len(ns))
+    wc_eng_n   = np.zeros(len(ns))
+
+    for k, ni in enumerate(ns):
+        eps_k = np.random.default_rng(seed=k).uniform(-e, e, size=(5000, ni))
+        sorted_eps = np.sort(eps_k, axis=1)
+        delta_k = e * (ni - 1) / (ni + 1)
+        wc_naive_n[k] = np.mean(sorted_eps[:, -2] > 0)
+        wc_2nd_n[k]   = np.mean(sorted_eps[:, -2] > delta_k)
+        wc_1st_n[k]   = np.mean(sorted_eps[:, -1] >= e)   # ~0 aina
+        wc_eng_n[k]   = np.mean(sorted_eps[:, -2] + sorted_eps[:, 0] > 0)
 
     fig3, axes = plt.subplots(1, 2, figsize=(12, 4))
 
@@ -602,11 +609,14 @@ def _(e, n, np, plt):
 
     ax_wc = axes[1]
     ax_wc.plot(ns, wc_naive_n * 100, color="#e07b39", linewidth=2, label="Naiivi")
+    ax_wc.plot(ns, wc_2nd_n   * 100, color="#4c8fd6", linewidth=2, label="Suljettu 2nd rat.")
+    ax_wc.plot(ns, wc_1st_n   * 100, color="#9b59b6", linewidth=2, label="Suljettu 1st rat.")
+    ax_wc.plot(ns, wc_eng_n   * 100, color="#3daa6a", linewidth=2, linestyle="--", label="Eng. rat.")
     ax_wc.axhline(50, color="black", linewidth=1, linestyle="--", alpha=0.5)
     ax_wc.axvline(n, color="gray", linewidth=1, linestyle=":", alpha=0.8, label=f"Nykyinen n={n}")
     ax_wc.set_xlabel("Tarjoajien määrä n")
     ax_wc.set_ylabel("P(utility < 0)  [%]")
-    ax_wc.set_title("Winner's curse -todennäköisyys (naiivi)")
+    ax_wc.set_title("Winner's curse -todennäköisyys")
     ax_wc.set_ylim(0, 100)
     ax_wc.legend()
 
