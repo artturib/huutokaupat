@@ -172,24 +172,45 @@ def _(mo):
 
     $$\boxed{b^*(s_i) = s_i - e}$$
 
-    **Johtaminen: ODE.** Tarjoaja signaaliarvolla $s$ harkitsee poikkeamaa $b(t)$-tarjoukseen.
-    Odotettu tuotto (tasainen priori $V$:lle, integrointi vain alueella jossa voitto mahdollinen):
+    **Johtaminen: ODE.**
 
-    $$\pi(t \mid s) = \frac{1}{2e}\int_{s-e}^{t+e} \left(\frac{t-V+e}{2e}\right)^{n-1}(V - b(t))\,dV$$
+    *Askel 1: odotettu tuotto.* Tarjoaja signaaliarvolla $s$ harkitsee poikkeamaa
+    $b(t)$-tarjoukseen (tarjoaa kuin tyyppi $t$). Hän voittaa, jos kaikki muut signaalit
+    ovat alle $t$. Yläraja $t+e$: jos $V > t+e$, niin jokainen signaali $s_j \sim U(V-e,V+e)$
+    on yli $t$, eikä voitto ole mahdollinen. Tasaisella priorilla $V$:lle:
 
-    Derivoidaan $t$:n suhteen ja asetetaan nollaksi kohdassa $t=s$ (Leibnizin sääntö;
-    ylärajatermi häviää koska $(t-(t+e)+e)^{n-1}=0$ kun $n>1$).
-    Sijoituksella $u = (s-V+e)/(2e)$:
+    $$\pi(t \mid s) = \frac{1}{2e}\int_{s-e}^{t+e} \underbrace{\left(\frac{t-V+e}{2e}\right)^{n-1}}_{P(\text{kaikki muut} < t \mid V)}\,(V - b(t))\,dV$$
 
-    $$\frac{\partial \pi}{\partial t}\bigg|_{t=s} = \frac{n-1}{2e}\underbrace{\int_0^1 u^{n-2}(s+e-b(s)-2eu)\,du}_{} - \frac{b'(s)}{2e}\underbrace{\int_0^1 u^{n-1}\,du}_{1/n} = 0$$
+    *Askel 2: derivointi Leibnizin säännöllä.* Ylärajan $t+e$ raja-arvotermi:
 
-    Ensimmäinen integraali: $(s+e-b(s))/(n-1) - 2e/n$. Kertomalla $(n-1)$:
+    $$\left(\frac{t-(t+e)+e}{2e}\right)^{n-1} = 0^{n-1} = 0 \quad (n > 1)$$
 
-    $$\frac{1}{2e}\bigl[s+e-b(s) - \tfrac{2e(n-1)}{n}\bigr] - \frac{b'(s)}{2en} = 0$$
+    Rajatermi häviää, joten ainoastaan integrandi derivoituu:
 
-    Kertomalla $2en$:
+    $$\frac{\partial \pi}{\partial t} = \frac{1}{2e}\int_{s-e}^{t+e}
+    \left[\frac{n-1}{2e}\left(\frac{t-V+e}{2e}\right)^{n-2}(V-b(t))
+    - \left(\frac{t-V+e}{2e}\right)^{n-1}b'(t)\right]dV$$
 
-    $$n(s+e-b(s)) - 2e(n-1) = 2e\,b'(s)$$
+    *Askel 3: evaluoidaan kohdassa $t = s$ ja sijoitetaan $u = (s-V+e)/(2e)$.*
+    Silloin $V = s+e-2eu$, $dV = -2e\,du$, ja rajat $V{=}s{-}e \Rightarrow u{=}1$,
+    $V{=}s{+}e \Rightarrow u{=}0$:
+
+    $$\frac{\partial \pi}{\partial t}\bigg|_{t=s}
+    = \int_0^1\left[\frac{n-1}{2e}\,u^{n-2}\bigl(s+e-b(s)-2eu\bigr) - u^{n-1}b'(s)\right]du = 0$$
+
+    *Askel 4: lasketaan integraalit.*
+
+    $$\frac{n-1}{2e}\int_0^1 u^{n-2}\bigl(s+e-b(s)-2eu\bigr)du
+    = \frac{n-1}{2e}\left[\frac{s+e-b(s)}{n-1} - \frac{2e}{n}\right]
+    = \frac{s+e-b(s)}{2e} - \frac{n-1}{n}$$
+
+    $$\int_0^1 u^{n-1}b'(s)\,du = \frac{b'(s)}{n}$$
+
+    *Askel 5: yhdistetään ja järjestetään.*
+
+    $$\frac{s+e-b(s)}{2e} - \frac{n-1}{n} - \frac{b'(s)}{n} = 0$$
+
+    Kerrotaan $2en$:llä ja järjestellään:
 
     $$\boxed{2e\,b'(s) + n\,b(s) = ns - e(n-2)}$$
 
