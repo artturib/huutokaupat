@@ -21,20 +21,20 @@ def _(mo):
     **Kolme protokollaa:** suljettu second-price (Vickrey), suljettu first-price,
     englantilainen (nouseva hinta).
 
-    **Kolme strategiaa:** naiivi ($b = s$), rationaalinen suljettu, rationaalinen englantilainen.
+    Alla esitetään tulokset näiden protokollien välillä, kun tarjoajat käyttävät tarjoajien hyödyn maksimoivaa strategiaa tarjoamiseen ja vertailun vuoksi strategiaa, missä tarjoavat oman signaalinsa verran.
 
     **Keskeiset tulokset:**
 
     | | Ostajan E[utility] | Myyjän E[tulo] |
     |---|---|---|
-    | Naiivi | $e\,\frac{3-n}{n+1}$ — negatiivinen kun $n>3$ | $V + e\,\frac{n-3}{n+1}$ |
-    | Suljettu rationaalinen (1st = 2nd) | $\dfrac{2e}{n+1}$ | $V - \dfrac{2e}{n+1}$ |
-    | Englantilainen rationaalinen | $\dfrac{e}{n+1}$ | $V - \dfrac{e}{n+1}$ |
+    | Tarjous = oma sigaali | $e\,\frac{3-n}{n+1}$ — negatiivinen kun $n>3$ | $V + e\,\frac{n-3}{n+1}$ |
+    | Suljetun huutokaupan optimistrategia (1st = 2nd) | $\dfrac{2e}{n+1}$ | $V - \dfrac{2e}{n+1}$ |
+    | Avoimen huutokaupan (englantilainen) optimistrategia | $\dfrac{e}{n+1}$ | $V - \dfrac{e}{n+1}$ |
 
     **Johtopäätökset:**
 
     1. **Winner's curse:** naiivi ostaja maksaa odotetusti liikaa aina kun $n > 3$.
-       Rationaalinen strategia korjaa tämän bid shadingilla.
+       Optimistrategioissa tarjoukset ovat matalampia kuin signaali.
 
     2. **Revenue equivalence:** suljettu first-price ja second-price tuottavat myyjälle
        täsmälleen saman odotetun tulon, vaikka voittajan maksu määräytyy eri tavalla.
@@ -99,7 +99,7 @@ def _(mo):
 
     ---
 
-    ## 4. Benchmark strategia: jokainen ostaja tarjoaa oman signaalinsa verran
+    ## 4. Benchmark strategia 2nd price huutokaupassa: jokainen ostaja tarjoaa oman signaalinsa verran
 
     Tarjoaja tarjoaa suoraan signaalinsa: $b_i = s_i$.
 
@@ -121,7 +121,7 @@ def _(mo):
 
     ---
 
-    ## 5. Suljettu second-price rationaalinen
+    ## 5. Optimistrategia suljetussa 2nd price huutokaupassa
 
     $$b_i^* = s_i - \delta, \qquad \delta = e\cdot\frac{n-1}{n+1}$$
 
@@ -132,7 +132,16 @@ def _(mo):
 
     $$b^*(s) = \mathbb{E}[V \mid s_i = s,\; s_i > \text{kaikki muut}]$$
 
-    Tasaisella priorilla, $n-1$ muun signaalin ollessa $< s$, posteriori on:
+    Johdetaan posteriori Bayesin kaavalla. Tasaisella priorilla $p(V) \propto 1$:
+
+    $$f(V \mid \text{voitto},\, s_i=s) \;\propto\; \underbrace{p(V)}_{\propto\,1}
+    \cdot \underbrace{f(s_i = s \mid V)}_{\frac{1}{2e},\; V\in(s-e,s+e)}
+    \cdot \underbrace{P(\text{kaikki muut} < s \mid V)}_{\left(\frac{s-V+e}{2e}\right)^{n-1}}$$
+
+    Oma signaali $s_i = s$ rajaa $V \in (s-e, s+e)$ (muuten $s_i = s$ on mahdoton).
+    Kullekin muulle tarjoajalle $s_j = V + \varepsilon_j < s$ tapahtuu todennäköisyydellä
+    $P(\varepsilon_j < s - V) = \frac{s - V + e}{2e}$, koska $\varepsilon_j \sim U(-e,e)$.
+    Vakiotekijät absorboituvat normalisointivakioon:
 
     $$f(V \mid \text{voitto},\, s_i=s) \;\propto\; \left(\frac{s-V+e}{2e}\right)^{n-1}, \quad V \in (s-e,\,s+e)$$
 
@@ -153,7 +162,7 @@ def _(mo):
 
     ---
 
-    ## 6. Suljettu first-price rationaalinen
+    ## 6. Optimistrategia suljetussa 1st price huutokaupassa
 
     Symmetrisessä BNE:ssä tarjoaja $i$ valitsee $b(s_i)$. Ensimmäisen asteen ehto johtaa ODE:hen:
 
@@ -260,7 +269,6 @@ def _(mo):
     mo.md("""
     ---
     ## 8. Simulaatio
-
     """)
     return
 
