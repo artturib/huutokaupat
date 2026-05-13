@@ -120,11 +120,9 @@ def _(mo):
 
     ## 5. Optimistrategia suljetussa 2nd price huutokaupassa
 
-    $$b_i^* = s_i - \delta, \qquad \delta = e\cdot\frac{n-1}{n+1}$$
+    $$b^*(s) = s - e\cdot\frac{n-1}{n+1}$$
 
-    $$\mathbb{E}[U_{\text{2nd, rat}}] = \frac{2e}{n+1} > 0 \quad \text{aina}$$
-
-    **Johtaminen: $b^*(s) = s - \delta$.** Tasapainoehto: tarjoajan tulee tarjota odotettu $V$:n
+    **Johtaminen.** Tasapainoehto: tarjoajan tulee tarjota odotettu $V$:n
     arvo ehdollisena sille, että hän on korkein tarjoaja:
 
     $$b^*(s) = \mathbb{E}[V \mid s_i = s,\; s_i > \text{kaikki muut}]$$
@@ -146,11 +144,11 @@ def _(mo):
 
     $$\mathbb{E}[t] = \frac{\int_0^{2e} t^n\,dt}{\int_0^{2e} t^{n-1}\,dt} = \frac{(2e)^{n+1}/(n+1)}{(2e)^n/n} = \frac{2en}{n+1}$$
 
-    $$b^*(s) = \mathbb{E}[V] = (s+e) - \frac{2en}{n+1} = s - e\cdot\frac{n-1}{n+1} = s - \delta \qquad \checkmark$$
+    $$b^*(s) = \mathbb{E}[V] = (s+e) - \frac{2en}{n+1} = s - e\cdot\frac{n-1}{n+1} \qquad \checkmark$$
 
-    **Myyjän odotettu tulo.** Hinta = toiseksi korkein tarjous $= b^*(s_{(n-1:n)}) = s_{(n-1:n)} - \delta$:
+    **Myyjän odotettu tulo.** Hinta = toiseksi korkein tarjous $= b^*(s_{(n-1:n)}) = s_{(n-1:n)} - e\cdot\frac{n-1}{n+1}$:
 
-    $$\mathbb{E}[P_\text{2nd}] = \mathbb{E}[b^*(s_{(n-1:n)})] = \mathbb{E}[s_{(n-1:n)}] - \delta
+    $$\mathbb{E}[P_\text{2nd}] = \mathbb{E}[s_{(n-1:n)}] - e\cdot\frac{n-1}{n+1}
     = V + e\cdot\frac{n-3}{n+1} - e\cdot\frac{n-1}{n+1} = V - \frac{2e}{n+1}$$
 
     **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
@@ -240,7 +238,7 @@ def _(mo):
     Yleinen ratkaisu: $b(s) = Ce^{-ns/(2e)} + s - e$. Eksponenttiterm divergoi $s\to-\infty$
     ellei $C=0$, joten $b^*(s) = s - e$. $\checkmark$
 
-    Sheidaus on $e$ — koko kohinan laajuus, enemmän kuin second-pricessa ($\delta < e$).
+    Sheidaus on $e$ — koko kohinan laajuus, enemmän kuin second-pricessa ($e\cdot\frac{n-1}{n+1} < e$).
     Intuitio: tarjoaja sheidaa signaalinsa **alimpaan mahdolliseen** $V$:n arvioon,
     sillä $V \geq s_i - e$ aina.
 
