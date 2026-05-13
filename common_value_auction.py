@@ -27,7 +27,7 @@ def _(mo):
 
     | | Ostajan E[utility] | Myyjän E[tulo] |
     |---|---|---|
-    | Tarjous = oma sigaali | $e\,\frac{3-n}{n+1}$ — negatiivinen kun $n>3$ | $V + e\,\frac{n-3}{n+1}$ |
+    | Tarjous = oma sigaali | $e\,\frac{3-n}{n+1}$ | $V + e\,\frac{n-3}{n+1}$ |
     | Suljetun huutokaupan optimistrategia (1st = 2nd) | $\dfrac{2e}{n+1}$ | $V - \dfrac{2e}{n+1}$ |
     | Avoimen huutokaupan (englantilainen) optimistrategia | $\dfrac{e}{n+1}$ | $V - \dfrac{e}{n+1}$ |
 
@@ -103,21 +103,18 @@ def _(mo):
 
     Tarjoaja tarjoaa suoraan signaalinsa: $b_i = s_i$.
 
-    $$\mathbb{E}[U_{\text{naiivi}}] = e \cdot \frac{3-n}{n+1}$$
+    **Myyjän odotettu tulo.** Voittaja on korkein signaali $s_{(n:n)}$, hinta on toiseksi
+    korkein signaali $s_{(n-1:n)} = V + \varepsilon_{(n-1:n)}$:
 
-    Tämä on **negatiivinen kun $n > 3$** — winner's curse iskee.
-
-    **Johtaminen.** Naiivi voittaja on se, jonka signaali on korkein ($s_{(n:n)}$), ja hinta on
-    toiseksi korkein signaali $s_{(n-1:n)} = V + \varepsilon_{(n-1:n)}$:
-
-    $$\mathbb{E}[U_\text{naiivi}] = V - \mathbb{E}[s_{(n-1:n)}] = -\mathbb{E}[\varepsilon_{(n-1:n)}]
-    = -e\cdot\frac{2(n-1)-n-1}{n+1} = e\cdot\frac{3-n}{n+1} \qquad \checkmark$$
-
-    **Myyjän odotettu tulo.** Koska $\mathbb{E}[P] = V - \mathbb{E}[U]$:
-
-    $$\mathbb{E}[P_\text{naiivi}] = V - e\cdot\frac{3-n}{n+1} = V + e\cdot\frac{n-3}{n+1}$$
+    $$\mathbb{E}[P_\text{naiivi}] = \mathbb{E}[s_{(n-1:n)}] = V + e\cdot\frac{2(n-1)-n-1}{n+1} = V + e\cdot\frac{n-3}{n+1}$$
 
     Huomaa: kun $n > 3$, myyjä saa *enemmän* kuin $V$ — winner's curse siirtää rahaa ostajalta myyjälle.
+
+    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
+
+    $$\mathbb{E}[U_\text{naiivi}] = V - \mathbb{E}[P_\text{naiivi}] = -e\cdot\frac{n-3}{n+1} = e\cdot\frac{3-n}{n+1}$$
+
+    Tämä on **negatiivinen kun $n > 3$** — winner's curse iskee.
 
     ---
 
@@ -151,17 +148,14 @@ def _(mo):
 
     $$b^*(s) = \mathbb{E}[V] = (s+e) - \frac{2en}{n+1} = s - e\cdot\frac{n-1}{n+1} = s - \delta \qquad \checkmark$$
 
-    **Odotettu utility.** Hinta = toiseksi korkein tarjous $= s_{(n-1:n)} - \delta$:
+    **Myyjän odotettu tulo.** Hinta = toiseksi korkein tarjous $= b^*(s_{(n-1:n)}) = s_{(n-1:n)} - \delta$:
 
-    $$\mathbb{E}[b^*(s_{(n-1:n)})] = \mathbb{E}[s_{(n-1:n)}] - \delta
+    $$\mathbb{E}[P_\text{2nd}] = \mathbb{E}[b^*(s_{(n-1:n)})] = \mathbb{E}[s_{(n-1:n)}] - \delta
     = V + e\cdot\frac{n-3}{n+1} - e\cdot\frac{n-1}{n+1} = V - \frac{2e}{n+1}$$
 
-    $$\mathbb{E}[U_\text{2nd}] = V - \mathbb{E}[s_{(n-1:n)}] + \delta
-    = -e\cdot\frac{n-3}{n+1} + e\cdot\frac{n-1}{n+1} = \frac{2e}{n+1} \qquad \checkmark$$
+    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
 
-    **Myyjän odotettu tulo:**
-
-    $$\mathbb{E}[P_\text{2nd}] = V - \frac{2e}{n+1}$$
+    $$\mathbb{E}[U_\text{2nd}] = V - \left(V - \frac{2e}{n+1}\right) = \frac{2e}{n+1} \qquad \checkmark$$
 
     ---
 
@@ -204,15 +198,15 @@ def _(mo):
     Intuitio: tarjoaja sheidaa signaalinsa **alimpaan mahdolliseen** $V$:n arvioon,
     sillä $V \geq s_i - e$ aina.
 
-    **Odotettu utility:**
+    **Myyjän odotettu tulo.** Voittaja on korkein signaali $s_{(n:n)}$ ja maksaa oman
+    tarjouksensa $b^*(s_{(n:n)}) = s_{(n:n)} - e$:
 
-    $$U_{\text{1st}} = V - b^*(s_{(n:n)}) = V - s_{(n:n)} + e = e - \varepsilon_{(n:n)}$$
+    $$\mathbb{E}[P_\text{1st}] = \mathbb{E}[b^*(s_{(n:n)})] = \mathbb{E}[s_{(n:n)}] - e
+    = V + e\cdot\frac{n-1}{n+1} - e = V - \frac{2e}{n+1}$$
 
-    $$\mathbb{E}[U_{\text{1st, rat}}] = e - e\cdot\frac{n-1}{n+1} = \frac{2e}{n+1}$$
+    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
 
-    **Myyjän odotettu tulo:**
-
-    $$\mathbb{E}[P_\text{1st}] = V - \frac{2e}{n+1} = \mathbb{E}[P_\text{2nd}]$$
+    $$\mathbb{E}[U_\text{1st}] = V - \left(V - \frac{2e}{n+1}\right) = \frac{2e}{n+1} \qquad \checkmark$$
 
     **Revenue equivalence:** first-price ja second-price tuottavat **saman odotetun tulon
     myyjälle** ($V - 2e/(n+1)$). Tämä pätee vaikka kyseessä on common value -huutokauppa,
@@ -247,18 +241,18 @@ def _(mo):
 
     $$p_k = \mathbb{E}[V \mid s_{(1)},\, s_k] = \frac{(s_k - e) + (s_{(1)} + e)}{2} = \frac{s_k + s_{(1)}}{2}$$
 
-    **Odotettu utility ja Linkage Principle.**
+    **Myyjän odotettu tulo.** Voittaja maksaa $p_{n-1} = (s_{(n-1)} + s_{(1)})/2$:
 
-    $$\mathbb{E}[U_\text{eng}] = V - \mathbb{E}\!\left[\frac{s_{(n-1)} + s_{(1)}}{2}\right]
-    = -\frac{\mathbb{E}[\varepsilon_{(n-1:n)}] + \mathbb{E}[\varepsilon_{(1:n)}]}{2}
-    = -\frac{1}{2}\left[e\cdot\frac{n-3}{n+1} + e\cdot\frac{1-n}{n+1}\right] = \frac{e}{n+1}$$
+    $$\mathbb{E}[P_\text{eng}] = \frac{\mathbb{E}[s_{(n-1:n)}] + \mathbb{E}[s_{(1:n)}]}{2}
+    = V + \frac{e\cdot\frac{n-3}{n+1} + e\cdot\frac{1-n}{n+1}}{2}
+    = V + \frac{e\cdot\frac{-2}{n+1}}{2} = V - \frac{e}{n+1}$$
 
-    **Myyjän odotettu tulo:**
+    Linkage Principle: $\mathbb{E}[P_\text{eng}] = V - \frac{e}{n+1} > V - \frac{2e}{n+1} = \mathbb{E}[P_\text{suljettu}]$
+    kaikilla $n$. ✓
 
-    $$\mathbb{E}[P_\text{eng}] = V - \frac{e}{n+1}$$
+    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
 
-    Vertailu: $\mathbb{E}[P_\text{eng}] = V - \frac{e}{n+1} > V - \frac{2e}{n+1} = \mathbb{E}[P_\text{suljettu}]$
-    kaikilla $n$ — englantilainen on aina parempi myyjälle. Linkage Principle pätee. ✓
+    $$\mathbb{E}[U_\text{eng}] = V - \left(V - \frac{e}{n+1}\right) = \frac{e}{n+1} \qquad \checkmark$$
 
     **Tuottoranking myyjälle:**
 
@@ -491,6 +485,11 @@ def _():
     import matplotlib.pyplot as plt
 
     return mo, np, plt
+
+
+@app.cell
+def _():
+    return
 
 
 if __name__ == "__main__":
