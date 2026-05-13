@@ -243,7 +243,17 @@ def _(mo):
     \;-\; \underbrace{\left(\frac{t-V+e}{2e}\right)^{n-1}b'(t)}_{\text{1. pysyy, 2. derivoituu}}$$
 
     *Askel 4: evaluoidaan $t = s$, sijoitetaan $u = (s-V+e)/(2e)$.*
-    Kun $u = (s-V+e)/(2e)$: $V = s+e-2eu$, $dV = -2e\,du$, rajat $u: 1 \to 0$:
+    Evaluoinnin jälkeen integrointialue on $V \in (s-e,\, s+e)$ ja integrandi sisältää
+    toistuvasti lausekkeen $(s-V+e)/(2e)$. Tehdään sijoitus $u = (s-V+e)/(2e)$, joka
+    muuttaa sen suoraan $u$:ksi — tavoitteena yksinkertaistaa integraalit muotoon $\int_0^1 u^k\,du$.
+
+    Muuttujan vaihto: $V = s+e-2eu$, joten $dV = -2e\,du$ ($s$ on vakio, ei muutu integroinnin yli).
+    Rajat muuntuvat:
+    - $V = s-e \;\Rightarrow\; u = \frac{s-(s-e)+e}{2e} = 1$
+    - $V = s+e \;\Rightarrow\; u = \frac{s-(s+e)+e}{2e} = 0$
+
+    Rajat kääntyvät, mutta $dV = -2e\,du$ tuo miinusmerkin joka kääntää suunnan takaisin:
+    $\int_{s-e}^{s+e}(\ldots)\,dV = \int_1^0(\ldots)(-2e\,du) = \int_0^1(\ldots)\,2e\,du$.
 
     $$\frac{\partial\pi}{\partial t}\bigg|_{t=s}
     = \frac{1}{2e}\int_0^1\left[\frac{n-1}{2e}\cdot u^{n-2}(s+e-b(s)-2eu) - u^{n-1}b'(s)\right]2e\,du = 0$$
