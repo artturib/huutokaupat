@@ -147,11 +147,11 @@ def _(mo):
 
     ---
 
-    ## 8. ⚠️ KESKEN: Milgrom–Weber-kaavan virhe tasajakaumalla
+    ## 8. Englantilaisen huutokaupan oikea BNE tasajakaumalle
 
-    Koodi käyttää tippumiskaavaa $p_k = \frac{2s_{(k)} + \sum_{j<k} p_j}{k+1}$, joka perustuu
-    **aritmeettiseen keskiarvoon** estimaattina $V$:stä. Tämä on oikein normaalijakautuneille
-    signaaleille, mutta **väärin tasajakautuneille**.
+    Alkuperäinen koodi käytti Milgrom–Weber-kaavaa $p_k = \frac{2s_{(k)} + \sum_{j<k} p_j}{k+1}$,
+    joka perustuu **aritmeettiseen keskiarvoon** estimaattina $V$:stä. Tämä on oikein
+    normaalijakautuneille signaaleille, mutta **väärin tasajakautuneille**.
 
     **Oikea Bayesilainen päättely tasajakaumalla** ($s_i = V + \varepsilon_i$,
     $\varepsilon_i \sim U(-e,e)$, tasainen priori $V$:lle):
@@ -177,8 +177,6 @@ def _(mo):
 
     Vertailu suljettuun rationaaliseen ($V - \frac{2e}{n+1}$): englantilainen tuottaa enemmän
     kaikilla $n$. Linkage Principle pätee. ✓
-
-    **TODO:** päivitä simulaatio käyttämään oikeaa strategiaa ja päivitä kaaviot.
     """)
     return
 
@@ -229,29 +227,16 @@ def _(np, slider_N, slider_V, slider_e, slider_n):
     price_1st_rat  = np.max(bids_1st, axis=1)   # voittaja maksaa oman tarjouksensa
     utility_1st_rat = V - price_1st_rat
 
-    # --- Englantilainen rationaalinen (Milgrom-Weber) ---
-    cumsums_eng = np.zeros(N_sim)
-    dropout_eng = np.zeros((N_sim, n - 1))
-    for _k in range(1, n):
-        _p = (2 * sorted_s[:, _k - 1] + cumsums_eng) / (_k + 1)
-        dropout_eng[:, _k - 1] = _p
-        cumsums_eng += _p
-    price_eng_rat   = dropout_eng[:, -1]
+    # --- Englantilainen rationaalinen (oikea BNE tasajakaumalle) ---
+    # Posteriori V ~ U(s_k - e, s_(1) + e) → E[V] = (s_k + s_(1)) / 2
+    # Voittaja maksaa: (s_(n-1) + s_(1)) / 2
+    price_eng_rat   = (sorted_s[:, -2] + sorted_s[:, 0]) / 2
     utility_eng_rat = V - price_eng_rat
 
     # --- Analyyttiset odotusarvot ---
     eu_naive_formula = e * (3 - n) / (n + 1)
     eu_sealed_formula = 2 * e / (n + 1)   # sama first- ja second-pricelle
-
-    def _eu_eng(n_val, e_val):
-        mu = np.array([e_val * (2*k - n_val - 1) / (n_val + 1) for k in range(1, n_val)])
-        cum_err = 0.0
-        for k in range(1, n_val):
-            err = (2 * mu[k - 1] + cum_err) / (k + 1)
-            cum_err += err
-        return -err
-
-    eu_eng_formula = _eu_eng(n, e)
+    eu_eng_formula    = e / (n + 1)        # = e/(n+1), aina > 0 ja < eu_sealed
     return (
         V,
         bids_1st,
@@ -376,19 +361,7 @@ def _(e, n, np, plt):
     ns = np.arange(2, 31)
     eu_naive_n  = e * (3 - ns) / (ns + 1)
     eu_sealed_n = 2 * e / (ns + 1)   # sama 1st ja 2nd
-
-    def _eu_eng_arr(e_val):
-        out = []
-        for n_val in ns:
-            mu = np.array([e_val*(2*k-n_val-1)/(n_val+1) for k in range(1, n_val)])
-            cum_err = 0.0
-            for k in range(1, n_val):
-                err = (2*mu[k-1] + cum_err) / (k+1)
-                cum_err += err
-            out.append(-err)
-        return np.array(out)
-
-    eu_english_n = _eu_eng_arr(e)
+    eu_english_n = e / (ns + 1)       # oikea BNE tasajakaumalle
 
     wc_naive_n = np.array([
         np.mean(
