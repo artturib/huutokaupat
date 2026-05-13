@@ -346,14 +346,15 @@ def _(mo):
     ## Liite D: Englantilaisen tippumishinnan johtaminen
 
     **Ensimmäinen tippuja ($k = 1$).**
-    Ennen yhtään tippumista ei ole paljastunut mitään. Tarjoajan ainoa tieto on oma signaali,
-    joten posteriori on $V \mid s_{(1)} \sim U(s_{(1)}-e,\; s_{(1)}+e)$ ja odotusarvo:
+    Ensimmäisen tippujan utility on **nolla riippumatta tippumishinnasta** — heillä on matalin
+    signaali, joten he eivät koskaan voita. Tämä tarkoittaa, että mikä tahansa kasvava
+    tippumisfunktio $\beta_1(s)$ on tasapainostrategia ensimmäiselle tippujalle.
 
-    $$p_1 = \mathbb{E}[V \mid s_{(1)}] = s_{(1)}$$
+    Tavanomainen valinta on $p_1 = s_{(1)}$, koska se tekee tippumishinnasta suoraan signaalin:
+    myöhemmät tarjoajat päättelevät $s_{(1)} = p_1$. (Esim. $p_1 = s_{(1)} + e\frac{n-1}{n+1}$
+    olisi myös tasapaino — ensimmäinen tippuja on välinpitämätön.)
 
-    Ensimmäinen tippuja tippuu siis omalla signaalillaan, ja tämä paljastaa $s_{(1)}$ muille.
-
-    Huomaa: kaava $p_k = (s_{(k)} + s_{(1)})/2$ pätee myös $k=1$:lle, sillä
+    Huomaa: kaava $p_k = (s_{(k)} + s_{(1)})/2$ pätee myös $k=1$:lle tällä valinnalla, sillä
     $p_1 = (s_{(1)} + s_{(1)})/2 = s_{(1)}$ ✓
 
     **Myöhemmät tippujat ($k \geq 2$).**
