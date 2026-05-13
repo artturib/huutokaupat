@@ -72,6 +72,12 @@ def _(mo):
 
     Tämä on **negatiivinen kun $n > 3$** — winner's curse iskee.
 
+    **Johtaminen.** Naiivi voittaja on se, jonka signaali on korkein ($s_{(n:n)}$), ja hinta on
+    toiseksi korkein signaali $s_{(n-1:n)} = V + \varepsilon_{(n-1:n)}$:
+
+    $$\mathbb{E}[U_\text{naiivi}] = V - \mathbb{E}[s_{(n-1:n)}] = -\mathbb{E}[\varepsilon_{(n-1:n)}]
+    = -e\cdot\frac{2(n-1)-n-1}{n+1} = e\cdot\frac{3-n}{n+1} \qquad \checkmark$$
+
     ---
 
     ## 5. Suljettu second-price rationaalinen
@@ -79,6 +85,26 @@ def _(mo):
     $$b_i^* = s_i - \delta, \qquad \delta = e\cdot\frac{n-1}{n+1}$$
 
     $$\mathbb{E}[U_{\text{2nd, rat}}] = \frac{2e}{n+1} > 0 \quad \text{aina}$$
+
+    **Johtaminen: $b^*(s) = s - \delta$.** Tasapainoehto: tarjoajan tulee tarjota odotettu $V$:n
+    arvo ehdollisena sille, että hän on korkein tarjoaja:
+
+    $$b^*(s) = \mathbb{E}[V \mid s_i = s,\; s_i > \text{kaikki muut}]$$
+
+    Tasaisella priorilla, $n-1$ muun signaalin ollessa $< s$, posteriori on:
+
+    $$f(V \mid \text{voitto},\, s_i=s) \;\propto\; \left(\frac{s-V+e}{2e}\right)^{n-1}, \quad V \in (s-e,\,s+e)$$
+
+    Sijoituksella $t = s+e-V \in (0,2e)$, tiheys $\propto t^{n-1}$:
+
+    $$\mathbb{E}[t] = \frac{\int_0^{2e} t^n\,dt}{\int_0^{2e} t^{n-1}\,dt} = \frac{(2e)^{n+1}/(n+1)}{(2e)^n/n} = \frac{2en}{n+1}$$
+
+    $$b^*(s) = \mathbb{E}[V] = (s+e) - \frac{2en}{n+1} = s - e\cdot\frac{n-1}{n+1} = s - \delta \qquad \checkmark$$
+
+    **Odotettu utility.** Hinta = toiseksi korkein tarjous $= s_{(n-1:n)} - \delta$:
+
+    $$\mathbb{E}[U_\text{2nd}] = V - \mathbb{E}[s_{(n-1:n)}] + \delta
+    = -e\cdot\frac{n-3}{n+1} + e\cdot\frac{n-1}{n+1} = \frac{2e}{n+1} \qquad \checkmark$$
 
     ---
 
@@ -92,7 +118,30 @@ def _(mo):
 
     $$\boxed{b^*(s_i) = s_i - e}$$
 
-    Tarkistus: $2e \cdot 1 + n(s-e) = ns - e(n-2) \implies 2e - ne = -e(n-2)\ \checkmark$
+    **Johtaminen: ODE.** Tarjoaja signaaliarvolla $s$ harkitsee poikkeamaa $b(t)$-tarjoukseen.
+    Odotettu tuotto (tasainen priori $V$:lle, integrointi vain alueella jossa voitto mahdollinen):
+
+    $$\pi(t \mid s) = \frac{1}{2e}\int_{s-e}^{t+e} \left(\frac{t-V+e}{2e}\right)^{n-1}(V - b(t))\,dV$$
+
+    Derivoidaan $t$:n suhteen ja asetetaan nollaksi kohdassa $t=s$ (Leibnizin sääntö;
+    ylärajatermi häviää koska $(t-(t+e)+e)^{n-1}=0$ kun $n>1$).
+    Sijoituksella $u = (s-V+e)/(2e)$:
+
+    $$\frac{\partial \pi}{\partial t}\bigg|_{t=s} = \frac{n-1}{2e}\underbrace{\int_0^1 u^{n-2}(s+e-b(s)-2eu)\,du}_{} - \frac{b'(s)}{2e}\underbrace{\int_0^1 u^{n-1}\,du}_{1/n} = 0$$
+
+    Ensimmäinen integraali: $(s+e-b(s))/(n-1) - 2e/n$. Kertomalla $(n-1)$:
+
+    $$\frac{1}{2e}\bigl[s+e-b(s) - \tfrac{2e(n-1)}{n}\bigr] - \frac{b'(s)}{2en} = 0$$
+
+    Kertomalla $2en$:
+
+    $$n(s+e-b(s)) - 2e(n-1) = 2e\,b'(s)$$
+
+    $$\boxed{2e\,b'(s) + n\,b(s) = ns - e(n-2)}$$
+
+    **Ratkaisu.** Partikulaariratkaisu $b_p = s-e$ (tarkistus: $2e\cdot1 + n(s-e) = ns-e(n-2)$ ✓).
+    Yleinen ratkaisu: $b(s) = Ce^{-ns/(2e)} + s - e$. Eksponenttiterm divergoi $s\to-\infty$
+    ellei $C=0$, joten $b^*(s) = s - e$. $\checkmark$
 
     Sheidaus on $e$ — koko kohinan laajuus, enemmän kuin second-pricessa ($\delta < e$).
     Intuitio: tarjoaja sheidaa signaalinsa **alimpaan mahdolliseen** $V$:n arvioon,
@@ -116,81 +165,39 @@ def _(mo):
 
     ## 7. Englantilainen rationaalinen strategia
 
-    **Milgrom–Weber (1982) tasapainoehto** ("almost tied"):
+    $$\boxed{p_k = \frac{s_{(k)} + s_{(1)}}{2}}, \qquad k = 1,\ldots,n-1$$
 
-    $$b^*_j = \frac{2s_j + \sum_{i=1}^k p_i}{k+2}$$
+    Voittaja maksaa $p_{n-1} = \frac{s_{(n-1)} + s_{(1)}}{2}$.
 
-    Rekursiivinen tippumissekvenssi:
+    **Johtaminen: tippumishinta tasajakaumalla.**
 
-    $$\boxed{p_k = \frac{2\,s_{(k:n)} + \sum_{j=1}^{k-1} p_j}{k+1}}, \qquad k = 1, \ldots, n-1$$
+    Tarjoaja $k$ (signaali $s_k$) tietää oman signaalinsa ja on havainnut ensimmäisen
+    tippumisen hinnasta $p_1 = s_{(1)}$ (pienin signaali). Posteriorista $V \sim U(s_k - e,\; s_k + e)$
+    päivittyy Bayesilaisesti:
 
-    **Kaavan intuitio merkki merkiltä:**
+    $$V \mid s_{(1)},\, s_k \;\sim\; U\!\bigl(s_k - e,\; s_{(1)} + e\bigr)$$
 
-    - $p_k$ — hinta, jolla $k$:nneksi matalin tarjoaja tippuu pois. Jokainen dropout paljastaa
-      signaalinsa: $s_{(k:n)} \approx p_k$.
+    Tämä **ei muutu** myöhempien tippumisten myötä. Syy: väliarvot $s_j \in (s_{(1)}, s_k)$
+    lisäävät ehdon $V \in (s_j-e, s_j+e)$, mutta
+    $\max(s_k-e,\, s_j-e) = s_k - e$ ja $\min(s_{(1)}+e,\, s_j+e) = s_{(1)}+e$,
+    joten tukijoukko ei kavennu.
 
-    - $s_{(k:n)}$ — tippuvan tarjoajan oma signaali. Se on kohinainen mittaus $V$:stä:
-      $s_{(k:n)} = V + \varepsilon_{(k:n)}$.
+    Tasapainoehto: tipu, kun hinta saavuttaa posteriorin odotusarvon:
 
-    - $2\,s_{(k:n)}$ — oma signaali lasketaan **kahdesti**. Tämä tulee siitä, että tippumispäätös
-      on relevantti vain tilanteessa, jossa olet *juuri* tasapelissä seuraavaksi tippuvan kanssa.
-      Tasapeli tarkoittaa: kuvittele, että joku toinen tarjoaja on täsmälleen sinun signaalisi
-      kohdalla. Nyt sinulla on käytettävissä $k+1$ havaintoa $V$:stä — $k-1$ paljastunutta
-      dropoutia plus oma signaali kahdesti (oma $+$ kuvitteellinen tasapelissä olija).
+    $$p_k = \mathbb{E}[V \mid s_{(1)},\, s_k] = \frac{(s_k - e) + (s_{(1)} + e)}{2} = \frac{s_k + s_{(1)}}{2}$$
 
-    - $\sum_{j=1}^{k-1} p_j$ — kaikkien aiempien dropoutien hinnat, jotka ovat paljastaneet
-      $k-1$ signaalia $V$:stä.
+    **Odotettu utility ja Linkage Principle.**
 
-    - Jako $(k+1)$ — nimittäjä on havaintojen lukumäärä $(k-1) + 2 = k+1$, joten kaava on
-      yksinkertaisesti **kaikkien käytettävissä olevien havaintojen keskiarvo** $V$:stä.
+    $$\mathbb{E}[U_\text{eng}] = V - \mathbb{E}\!\left[\frac{s_{(n-1)} + s_{(1)}}{2}\right]
+    = -\frac{\mathbb{E}[\varepsilon_{(n-1:n)}] + \mathbb{E}[\varepsilon_{(1:n)}]}{2}
+    = -\frac{1}{2}\left[e\cdot\frac{n-3}{n+1} + e\cdot\frac{1-n}{n+1}\right] = \frac{e}{n+1}$$
 
-    **Linkage Principle** (Milgrom–Weber 1982): informaatiopaljastus hyödyttää myyjää —
-    englantilainen rationaalinen tuottaa aina pienemmän utiliteetin voittajalle kuin suljettu rationaalinen.
-
-    **Miksi paljastuva informaatio nostaa hintaa eikä laske sitä?**
-
-    Oikea vertailu on suljettuun *rationaaliseen* strategiaan, jossa sheidaus $\delta$ on vakio
-    ja riippumaton $V$:stä. Englantilaisessa toiseksi korkein tarjoaja päivittää kynnystään
-    havaittujen dropoutien perusteella — korkeat dropoutit (merkki korkeasta $V$:stä) nostavat
-    kynnystä. **Hinta on positiivisesti korreloitunut $V$:n kanssa**: myyjä saa enemmän juuri
-    silloin kun voittaminen on arvokkainta.
+    Vertailu: $\mathbb{E}[U_\text{eng}] = \frac{e}{n+1} < \frac{2e}{n+1} = \mathbb{E}[U_\text{suljettu}]$
+    kaikilla $n$ — englantilainen on aina parempi myyjälle. Linkage Principle pätee. ✓
 
     **Tuottoranking myyjälle:**
 
-    $$\mathbb{E}[\text{hinta}]:\quad \text{naiivi} \geq \text{eng. rat.} \geq \text{suljettu 2nd rat.} = \text{suljettu 1st rat.}$$
-
-    ---
-
-    ## 8. Englantilaisen huutokaupan oikea BNE tasajakaumalle
-
-    Alkuperäinen koodi käytti Milgrom–Weber-kaavaa $p_k = \frac{2s_{(k)} + \sum_{j<k} p_j}{k+1}$,
-    joka perustuu **aritmeettiseen keskiarvoon** estimaattina $V$:stä. Tämä on oikein
-    normaalijakautuneille signaaleille, mutta **väärin tasajakautuneille**.
-
-    **Oikea Bayesilainen päättely tasajakaumalla** ($s_i = V + \varepsilon_i$,
-    $\varepsilon_i \sim U(-e,e)$, tasainen priori $V$:lle):
-
-    Tarjoajan $k$ posteriori oman signaalin $s_k$ jälkeen: $V \sim U(s_k - e,\; s_k + e)$.
-
-    Kun ekan tippumisen hinnasta inferoidaan $s_{(1)}$ (pienin signaali), posteriori päivittyy:
-
-    $$V \sim U(s_k - e,\; s_{(1)} + e)$$
-
-    Tämä **ei muutu** myöhempien tippumisten myötä — vain minimi $s_{(1)}$ ja oma signaali
-    $s_k$ ratkaisevat (väliarvot $s_j \in (s_{(1)}, s_k)$ eivät kavenna tukijoukkoa).
-
-    Posteriorin odotusarvo (= oikea tippumishinta): $\frac{s_k + s_{(1)}}{2}$
-
-    **Oikea tippumisstrategia tasajakaumalle:**
-
-    $$\boxed{p_k = \frac{s_{(k)} + s_{(1)}}{2}}$$
-
-    Voittaja maksaa $p_{n-1} = \frac{s_{(n-1)} + s_{(1)}}{2}$, josta:
-
-    $$\mathbb{E}[\text{myyjän tulo}] = V - \frac{e}{n+1}$$
-
-    Vertailu suljettuun rationaaliseen ($V - \frac{2e}{n+1}$): englantilainen tuottaa enemmän
-    kaikilla $n$. Linkage Principle pätee. ✓
+    $$\mathbb{E}[\text{hinta}]:\quad \text{naiivi} \;\geq\; \text{eng. rat.} \;\geq\; \text{suljettu 2nd rat.} = \text{suljettu 1st rat.}$$
     """)
     return
 
@@ -200,6 +207,7 @@ def _(mo):
     mo.md("""
     ---
     ## 8. Simulaatio
+
     """)
     return
 
