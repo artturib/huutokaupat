@@ -347,14 +347,36 @@ def _(mo):
 
     **Ensimmäinen tippuja ($k = 1$).**
     Ensimmäisen tippujan utility on **nolla riippumatta tippumishinnasta** — heillä on matalin
-    signaali, joten he eivät koskaan voita. Tämä tarkoittaa, että mikä tahansa kasvava
-    tippumisfunktio $\beta_1(s)$ on tasapainostrategia ensimmäiselle tippujalle.
+    signaali, joten he eivät koskaan voita. Siksi yksittäisen tarjoajan kannustin on
+    välinpitämätön tippumishetken suhteen, ja mikä tahansa kasvava $\beta_1(s)$ voisi ensi
+    näkemältä tuntua tasapainolta.
 
-    Tavanomainen valinta on $p_1 = s_{(1)}$, koska se tekee tippumishinnasta suoraan signaalin:
-    myöhemmät tarjoajat päättelevät $s_{(1)} = p_1$. (Esim. $p_1 = s_{(1)} + e\frac{n-1}{n+1}$
-    olisi myös tasapaino — ensimmäinen tippuja on välinpitämätön.)
+    Tasapaino on kuitenkin $p_1 = s_{(1)}$, eikä tämä ole vain sopimuskysymys. Osoitetaan,
+    että $\beta(s) = s$ on Nashin tasapaino, kun otetaan huomioon muidenkin pelaajien kannustimet.
 
-    Huomaa: kaava $p_k = (s_{(k)} + s_{(1)})/2$ pätee myös $k=1$:lle tällä valinnalla, sillä
+    **Miksi $\beta(s) = s - \varepsilon$ ei ole tasapaino ($\varepsilon > 0$)?**
+    Jos kaikki pelaavat strategiaa $\beta(s) = s - \varepsilon$, pelaaja $i$ voi poiketa
+    strategiaan $\beta(s) = s - \gamma$ missä $\gamma < \varepsilon$. Tällöin pelaaja $i$
+    tippuu myöhemmin (korkeammalla hinnalla) kuin kilpailijansa — mutta koska kilpailijat
+    tippuvat ensin, pelaaja $i$ voittaa halvemmalla kuin ilman poikkeamaa.
+    Siis mikä tahansa $\beta(s) = s - \varepsilon$ synnyttää kilpajuoksun ylöspäin.
+
+    **Miksi kilpajuoksu pysähtyy $\beta(s) = s$:ään?**
+    Kun kaikki pelaavat $\beta(s) = s$, lasketaan hyödyn muutos pienestä poikkeamasta.
+
+    *Poikkeama ylöspäin* $\beta(s) = s + \delta$ ($\delta > 0$): pelaaja odottaa hintaan $s+\delta$
+    asti. Jos toisella on signaali $s_j \in (s, s+\delta)$, pelaaja voittaa hinnalla $s_j < s+\delta$
+    ja saa payoffin $V - s_j < 0$ (koska $V \approx s$ tasapainossa). Poikkeaman hyötymuutos:
+    $$\Delta U = -\frac{\delta^2}{4e} < 0$$
+
+    *Poikkeama alaspäin* $\beta(s) = s - \gamma$ ($\gamma > 0$): pelaaja tippuu jo hinnalla $s-\gamma$.
+    Jos toisella on signaali $s_j \in (s-\gamma, s)$, kilpailija jää voittajaksi hinnalla
+    $s - \gamma$, vaikka pelaajan $i$ parempi signaali olisi mahdollistanut voiton. Poikkeaman hyötymuutos:
+    $$\Delta U = -\frac{\gamma^2}{4e} < 0$$
+
+    Molemmat poikkeamat ovat haitallisia — $\beta(s) = s$ on **Nashin tasapaino**.
+
+    Kaava $p_k = (s_{(k)} + s_{(1)})/2$ pätee myös $k=1$:lle tällä valinnalla, sillä
     $p_1 = (s_{(1)} + s_{(1)})/2 = s_{(1)}$ ✓
 
     **Myöhemmät tippujat ($k \geq 2$).**
