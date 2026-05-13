@@ -260,13 +260,18 @@ def _(mo):
 
     *Askel 5: lasketaan integraalit ja järjestetään.*
 
-    $$\frac{n-1}{2e}\int_0^1 u^{n-2}(s+e-b(s)-2eu)\,du
-    = \frac{n-1}{2e}\left[\frac{s+e-b(s)}{n-1} - \frac{2e}{n}\right]
-    = \frac{s+e-b(s)}{2e} - \frac{n-1}{n}$$
+    Ehto $\frac{\partial\pi}{\partial t}\big|_{t=s} = 0$ on kahden termin summa $= 0$.
+    Lasketaan kumpikin termi erikseen, sijoitetaan takaisin ja järjestetään.
+
+    **Termi 1:**
+
+    $$\frac{n-1}{2e}\int_0^1 u^{n-2}(s+e-b(s)-2eu)\,du = \frac{n-1}{2e}\left[\frac{s+e-b(s)}{n-1} - \frac{2e}{n}\right] = \frac{s+e-b(s)}{2e} - \frac{n-1}{n}$$
+
+    **Termi 2:**
 
     $$\int_0^1 u^{n-1}b'(s)\,du = \frac{b'(s)}{n}$$
 
-    Yhdistämällä ja kertomalla $2en$:
+    **Sijoitetaan takaisin** ehtooon Termi 1 $-$ Termi 2 $= 0$ ja kerrotaan $2en$:
 
     $$n(s+e-b(s)) - 2e(n-1) - 2e\,b'(s) = 0$$
 
