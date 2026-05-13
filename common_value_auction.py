@@ -122,6 +122,15 @@ def _(mo):
 
     $$b^*(s) = s - e\cdot\frac{n-1}{n+1}$$
 
+    **Myyjän odotettu tulo.** Hinta = toiseksi korkein tarjous $= b^*(s_{(n-1:n)}) = s_{(n-1:n)} - e\cdot\frac{n-1}{n+1}$:
+
+    $$\mathbb{E}[P_\text{2nd}] = \mathbb{E}[s_{(n-1:n)}] - e\cdot\frac{n-1}{n+1}
+    = V + e\cdot\frac{n-3}{n+1} - e\cdot\frac{n-1}{n+1} = V - \frac{2e}{n+1}$$
+
+    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
+
+    $$\mathbb{E}[U] = V - \left(V - \frac{2e}{n+1}\right) = \frac{2e}{n+1} \qquad \checkmark$$
+
     **Johtaminen.** Tasapainoehto: tarjoajan tulee tarjota odotettu $V$:n
     arvo ehdollisena sille, että hän on korkein tarjoaja:
 
@@ -146,28 +155,31 @@ def _(mo):
 
     $$b^*(s) = \mathbb{E}[V] = (s+e) - \frac{2en}{n+1} = s - e\cdot\frac{n-1}{n+1} \qquad \checkmark$$
 
-    **Myyjän odotettu tulo.** Hinta = toiseksi korkein tarjous $= b^*(s_{(n-1:n)}) = s_{(n-1:n)} - e\cdot\frac{n-1}{n+1}$:
-
-    $$\mathbb{E}[P_\text{2nd}] = \mathbb{E}[s_{(n-1:n)}] - e\cdot\frac{n-1}{n+1}
-    = V + e\cdot\frac{n-3}{n+1} - e\cdot\frac{n-1}{n+1} = V - \frac{2e}{n+1}$$
-
-    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
-
-    $$\mathbb{E}[U] = V - \left(V - \frac{2e}{n+1}\right) = \frac{2e}{n+1} \qquad \checkmark$$
-
     ---
 
     ## 6. Optimistrategia suljetussa 1st price huutokaupassa
 
+    $$\boxed{b^*(s_i) = s_i - e}$$
+
+    **Myyjän odotettu tulo.** Voittaja on korkein signaali $s_{(n:n)}$ ja maksaa oman
+    tarjouksensa $b^*(s_{(n:n)}) = s_{(n:n)} - e$:
+
+    $$\mathbb{E}[P_\text{1st}] = \mathbb{E}[b^*(s_{(n:n)})] = \mathbb{E}[s_{(n:n)}] - e
+    = V + e\cdot\frac{n-1}{n+1} - e = V - \frac{2e}{n+1}$$
+
+    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
+
+    $$\mathbb{E}[U_\text{1st}] = V - \left(V - \frac{2e}{n+1}\right) = \frac{2e}{n+1} \qquad \checkmark$$
+
+    **Revenue equivalence:** first-price ja second-price tuottavat **saman odotetun tulon
+    myyjälle** ($V - 2e/(n+1)$). Tämä pätee vaikka kyseessä on common value -huutokauppa,
+    koska signaalit ovat ehdollisesti riippumattomia $V$:n suhteen.
+
+    **Johtaminen: ODE.**
+
     Symmetrisessä BNE:ssä tarjoaja $i$ valitsee $b(s_i)$. Ensimmäisen asteen ehto johtaa ODE:hen:
 
     $$2e \cdot b'(s) + n \cdot b(s) = ns - e(n-2)$$
-
-    Ratkaisu vakiovakiolla $C = 0$:
-
-    $$\boxed{b^*(s_i) = s_i - e}$$
-
-    **Johtaminen: ODE.**
 
     *Askel 1: optimointiongelman asetus.*
     Etsitään symmetristä BNE:tä: kaikki tarjoajat käyttävät samaa kasvavaa tarjousfunktiota
@@ -242,20 +254,6 @@ def _(mo):
     Intuitio: tarjoaja sheidaa signaalinsa **alimpaan mahdolliseen** $V$:n arvioon,
     sillä $V \geq s_i - e$ aina.
 
-    **Myyjän odotettu tulo.** Voittaja on korkein signaali $s_{(n:n)}$ ja maksaa oman
-    tarjouksensa $b^*(s_{(n:n)}) = s_{(n:n)} - e$:
-
-    $$\mathbb{E}[P_\text{1st}] = \mathbb{E}[b^*(s_{(n:n)})] = \mathbb{E}[s_{(n:n)}] - e
-    = V + e\cdot\frac{n-1}{n+1} - e = V - \frac{2e}{n+1}$$
-
-    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
-
-    $$\mathbb{E}[U_\text{1st}] = V - \left(V - \frac{2e}{n+1}\right) = \frac{2e}{n+1} \qquad \checkmark$$
-
-    **Revenue equivalence:** first-price ja second-price tuottavat **saman odotetun tulon
-    myyjälle** ($V - 2e/(n+1)$). Tämä pätee vaikka kyseessä on common value -huutokauppa,
-    koska signaalit ovat ehdollisesti riippumattomia $V$:n suhteen.
-
     **Miksi bid on deterministinen?** Koska signaali $s_i$ on jo satunnaisesti vedetty,
     $b^*(s_i) = s_i - e$ on deterministinen funktio tyypistä. Satunnaisuus syntyy signaalien
     vaihtelusta, ei ylimääräisestä sekoittamisesta (Harsanyin purifiointiperiaate).
@@ -267,6 +265,23 @@ def _(mo):
     $$\boxed{p_k = \frac{s_{(k)} + s_{(1)}}{2}}, \qquad k = 1,\ldots,n-1$$
 
     Voittaja maksaa $p_{n-1} = \frac{s_{(n-1)} + s_{(1)}}{2}$.
+
+    **Myyjän odotettu tulo.** Voittaja maksaa $p_{n-1} = (s_{(n-1)} + s_{(1)})/2$:
+
+    $$\mathbb{E}[P_\text{eng}] = \frac{\mathbb{E}[s_{(n-1:n)}] + \mathbb{E}[s_{(1:n)}]}{2}
+    = V + \frac{e\cdot\frac{n-3}{n+1} + e\cdot\frac{1-n}{n+1}}{2}
+    = V + \frac{e\cdot\frac{-2}{n+1}}{2} = V - \frac{e}{n+1}$$
+
+    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
+
+    $$\mathbb{E}[U_\text{eng}] = V - \left(V - \frac{e}{n+1}\right) = \frac{e}{n+1} \qquad \checkmark$$
+
+    **Tuottoranking myyjälle:**
+
+    $$\mathbb{E}[\text{hinta}]:\quad \text{naiivi} \;\geq\; \text{eng. rat.} \;\geq\; \text{suljettu 2nd rat.} = \text{suljettu 1st rat.}$$
+
+    Linkage Principle: $\mathbb{E}[P_\text{eng}] = V - \frac{e}{n+1} > V - \frac{2e}{n+1} = \mathbb{E}[P_\text{suljettu}]$
+    kaikilla $n$. ✓
 
     **Johtaminen: tippumishinta tasajakaumalla.**
 
@@ -284,23 +299,6 @@ def _(mo):
     Tasapainoehto: tipu, kun hinta saavuttaa posteriorin odotusarvon:
 
     $$p_k = \mathbb{E}[V \mid s_{(1)},\, s_k] = \frac{(s_k - e) + (s_{(1)} + e)}{2} = \frac{s_k + s_{(1)}}{2}$$
-
-    **Myyjän odotettu tulo.** Voittaja maksaa $p_{n-1} = (s_{(n-1)} + s_{(1)})/2$:
-
-    $$\mathbb{E}[P_\text{eng}] = \frac{\mathbb{E}[s_{(n-1:n)}] + \mathbb{E}[s_{(1:n)}]}{2}
-    = V + \frac{e\cdot\frac{n-3}{n+1} + e\cdot\frac{1-n}{n+1}}{2}
-    = V + \frac{e\cdot\frac{-2}{n+1}}{2} = V - \frac{e}{n+1}$$
-
-    Linkage Principle: $\mathbb{E}[P_\text{eng}] = V - \frac{e}{n+1} > V - \frac{2e}{n+1} = \mathbb{E}[P_\text{suljettu}]$
-    kaikilla $n$. ✓
-
-    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
-
-    $$\mathbb{E}[U_\text{eng}] = V - \left(V - \frac{e}{n+1}\right) = \frac{e}{n+1} \qquad \checkmark$$
-
-    **Tuottoranking myyjälle:**
-
-    $$\mathbb{E}[\text{hinta}]:\quad \text{naiivi} \;\geq\; \text{eng. rat.} \;\geq\; \text{suljettu 2nd rat.} = \text{suljettu 1st rat.}$$
     """)
     return
 
