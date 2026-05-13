@@ -217,13 +217,23 @@ def _(mo):
 
     *Askel 3: tasapainoehto ja derivointi.*
     Tasapainossa $t = s$ on optimaalinen, joten $\frac{\partial \pi}{\partial t}\big|_{t=s} = 0$.
-    Leibnizin sääntö: $\frac{d}{dt}\int_{a}^{g(t)} f(t,V)\,dV = f(t,g(t))\cdot g'(t) + \int_a^{g(t)}\frac{\partial f}{\partial t}\,dV$.
 
-    **Ylärajatermi** ($V = t+e$, $g'(t) = 1$):
+    Koska integraalin yläraja $g(t) = t+e$ riippuu $t$:stä, käytetään **Leibnizin sääntöä**:
 
-    $$\left(\frac{t-(t+e)+e}{2e}\right)^{n-1}\cdot((t+e)-b(t)) = 0^{n-1}\cdot(\ldots) = 0 \quad (n > 1)$$
+    $$\frac{d}{dt}\int_{a}^{g(t)} f(t,V)\,dV = f(t,g(t))\cdot g'(t) + \int_a^{g(t)}\frac{\partial f}{\partial t}\,dV$$
 
-    Ylärajatermi häviää, koska voittotodennäköisyys on nolla kun $V = t+e$.
+    Sääntö jakaa derivaatan kahteen osaan:
+    1. $f(t,g(t))\cdot g'(t)$ — ylärajan liikkumisen vaikutus: kuinka paljon uutta pinta-alaa
+       integraali nielee kun $t$ kasvaa. Tämä on pistemäinen arvo (ei integraali): integrandin
+       arvo juuri ylärajalla $V = g(t)$, kerrottuna ylärajan liikenopeudella $g'(t)$.
+    2. $\int \frac{\partial f}{\partial t}\,dV$ — integrandin itsensä muuttumisen vaikutus.
+
+    Tässä $g(t) = t+e$, joten $g'(t) = 1$. Lasketaan ensin ylärajatermi ($V = t+e$):
+
+    $$f(t,\,t+e)\cdot 1 = \left(\frac{t-(t+e)+e}{2e}\right)^{n-1}\cdot((t+e)-b(t)) = 0^{n-1}\cdot(\ldots) = 0$$
+
+    Ylärajatermi häviää, koska voittotodennäköisyys on nolla kun $V = t+e$
+    (kaikilla kilpailijoilla on silloin varmuudella signaali $> t$).
 
     **Integrandin osittaisderivaatat** $t$:n suhteen — integrandi on tulo kahdesta $t$:stä
     riippuvasta tekijästä, joten käytetään tulon derivoimissääntöä:
