@@ -78,24 +78,11 @@ def _(mo):
     ## 3. Järjestysstatistiikat
 
     Merkitään $\varepsilon_{(k:n)}$ signaalivirheiden $k$:nneksi pienimmäksi arvoksi
-    (kasvavassa järjestyksessä). Koska $\varepsilon_i \sim \text{Uniform}(-e, e)$,
-    $k$:nnen järjestysstatistiikan odotusarvo on
+    (kasvavassa järjestyksessä). Koska $\varepsilon_i \sim \text{Uniform}(-e, e)$:
 
     $$\mathbb{E}[\varepsilon_{(k:n)}] = e \cdot \frac{2k - n - 1}{n+1}$$
 
-    **Johtaminen.** Normalisoidaan $U_i = \frac{\varepsilon_i + e}{2e} \sim \text{Uniform}(0,1)$.
-    $k$:nnen järjestysstatistiikan tiheysfunktio on
-
-    $$f_{(k:n)}(u) = \frac{n!}{(k-1)!\,(n-k)!}\,u^{k-1}(1-u)^{n-k} \qquad u \in [0,1]$$
-
-    (tämä on Beta$(k,\,n-k+1)$-jakauma). Odotusarvo:
-
-    $$\mathbb{E}[U_{(k:n)}] = \frac{n!}{(k-1)!\,(n-k)!} \int_0^1 u^k(1-u)^{n-k}\,du
-    = \frac{n!}{(k-1)!\,(n-k)!} \cdot \frac{k!\,(n-k)!}{(n+1)!} = \frac{k}{n+1}$$
-
-    Skaalauksella $\varepsilon_i = -e + 2e\,U_i$:
-
-    $$\mathbb{E}[\varepsilon_{(k:n)}] = -e + 2e \cdot \frac{k}{n+1} = e\cdot\frac{2k-n-1}{n+1} \qquad \checkmark$$
+    [→ Liite A: Johtaminen](#liite-a)
 
     ---
 
@@ -131,8 +118,88 @@ def _(mo):
 
     $$\mathbb{E}[U] = V - \left(V - \frac{2e}{n+1}\right) = \frac{2e}{n+1} \qquad \checkmark$$
 
-    **Johtaminen.** Tasapainoehto: tarjoajan tulee tarjota odotettu $V$:n
-    arvo ehdollisena sille, että hän on korkein tarjoaja:
+    [→ Liite B: Optimistrategian johtaminen](#liite-b)
+
+    ---
+
+    ## 6. Optimistrategia suljetussa 1st price huutokaupassa
+
+    $$\boxed{b^*(s_i) = s_i - e}$$
+
+    **Myyjän odotettu tulo.** Voittaja on korkein signaali $s_{(n:n)}$ ja maksaa oman
+    tarjouksensa $b^*(s_{(n:n)}) = s_{(n:n)} - e$:
+
+    $$\mathbb{E}[P_\text{1st}] = \mathbb{E}[b^*(s_{(n:n)})] = \mathbb{E}[s_{(n:n)}] - e
+    = V + e\cdot\frac{n-1}{n+1} - e = V - \frac{2e}{n+1}$$
+
+    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
+
+    $$\mathbb{E}[U_\text{1st}] = V - \left(V - \frac{2e}{n+1}\right) = \frac{2e}{n+1} \qquad \checkmark$$
+
+    **Revenue equivalence:** first-price ja second-price tuottavat **saman odotetun tulon
+    myyjälle** ($V - 2e/(n+1)$). Tämä pätee vaikka kyseessä on common value -huutokauppa,
+    koska signaalit ovat ehdollisesti riippumattomia $V$:n suhteen.
+
+    [→ Liite C: ODE-johtaminen](#liite-c)
+
+    ---
+
+    ## 7. Englantilainen rationaalinen strategia
+
+    Englantilaisessa huutokaupassa tarjoajat eivät jätä suljettua tarjousta — he pysyvät
+    mukana kunnes hinta ylittää oman kynnysarvonsa ja **tippuvat pois**. Strategia on siis
+    tippumishinta $p_k$, ei tarjous $b$. Voittaja maksaa hinnan, jolla toiseksi viimeinen
+    tippui pois.
+
+    $$\boxed{p_k = \frac{s_{(k)} + s_{(1)}}{2}}, \qquad k = 1,\ldots,n-1$$
+
+    Voittaja maksaa $p_{n-1} = \frac{s_{(n-1)} + s_{(1)}}{2}$.
+
+    **Myyjän odotettu tulo.** Voittaja maksaa $p_{n-1} = (s_{(n-1)} + s_{(1)})/2$:
+
+    $$\mathbb{E}[P_\text{eng}] = \frac{\mathbb{E}[s_{(n-1:n)}] + \mathbb{E}[s_{(1:n)}]}{2}
+    = V + \frac{e\cdot\frac{n-3}{n+1} + e\cdot\frac{1-n}{n+1}}{2}
+    = V + \frac{e\cdot\frac{-2}{n+1}}{2} = V - \frac{e}{n+1}$$
+
+    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
+
+    $$\mathbb{E}[U_\text{eng}] = V - \left(V - \frac{e}{n+1}\right) = \frac{e}{n+1} \qquad \checkmark$$
+
+    **Tuottoranking myyjälle:**
+
+    $$\mathbb{E}[\text{hinta}]:\quad \text{naiivi} \;\geq\; \text{eng. rat.} \;\geq\; \text{suljettu 2nd rat.} = \text{suljettu 1st rat.}$$
+
+    Linkage Principle: $\mathbb{E}[P_\text{eng}] = V - \frac{e}{n+1} > V - \frac{2e}{n+1} = \mathbb{E}[P_\text{suljettu}]$
+    kaikilla $n$. ✓
+
+    [→ Liite D: Tippumishinnan johtaminen](#liite-d)
+
+    ---
+
+    <a id="liite-a"></a>
+    ## Liite A: Järjestysstatistiikan odotusarvon johtaminen
+
+    Normalisoidaan $U_i = \frac{\varepsilon_i + e}{2e} \sim \text{Uniform}(0,1)$.
+    $k$:nnen järjestysstatistiikan tiheysfunktio on
+
+    $$f_{(k:n)}(u) = \frac{n!}{(k-1)!\,(n-k)!}\,u^{k-1}(1-u)^{n-k} \qquad u \in [0,1]$$
+
+    (tämä on Beta$(k,\,n-k+1)$-jakauma). Odotusarvo:
+
+    $$\mathbb{E}[U_{(k:n)}] = \frac{n!}{(k-1)!\,(n-k)!} \int_0^1 u^k(1-u)^{n-k}\,du
+    = \frac{n!}{(k-1)!\,(n-k)!} \cdot \frac{k!\,(n-k)!}{(n+1)!} = \frac{k}{n+1}$$
+
+    Skaalauksella $\varepsilon_i = -e + 2e\,U_i$:
+
+    $$\mathbb{E}[\varepsilon_{(k:n)}] = -e + 2e \cdot \frac{k}{n+1} = e\cdot\frac{2k-n-1}{n+1} \qquad \checkmark$$
+
+    ---
+
+    <a id="liite-b"></a>
+    ## Liite B: 2nd price optimistrategian johtaminen
+
+    Tasapainoehto: tarjoajan tulee tarjota odotettu $V$:n arvo ehdollisena sille,
+    että hän on korkein tarjoaja:
 
     $$b^*(s) = \mathbb{E}[V \mid s_i = s,\; s_i > \text{kaikki muut}]$$
 
@@ -157,25 +224,8 @@ def _(mo):
 
     ---
 
-    ## 6. Optimistrategia suljetussa 1st price huutokaupassa
-
-    $$\boxed{b^*(s_i) = s_i - e}$$
-
-    **Myyjän odotettu tulo.** Voittaja on korkein signaali $s_{(n:n)}$ ja maksaa oman
-    tarjouksensa $b^*(s_{(n:n)}) = s_{(n:n)} - e$:
-
-    $$\mathbb{E}[P_\text{1st}] = \mathbb{E}[b^*(s_{(n:n)})] = \mathbb{E}[s_{(n:n)}] - e
-    = V + e\cdot\frac{n-1}{n+1} - e = V - \frac{2e}{n+1}$$
-
-    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
-
-    $$\mathbb{E}[U_\text{1st}] = V - \left(V - \frac{2e}{n+1}\right) = \frac{2e}{n+1} \qquad \checkmark$$
-
-    **Revenue equivalence:** first-price ja second-price tuottavat **saman odotetun tulon
-    myyjälle** ($V - 2e/(n+1)$). Tämä pätee vaikka kyseessä on common value -huutokauppa,
-    koska signaalit ovat ehdollisesti riippumattomia $V$:n suhteen.
-
-    **Johtaminen: ODE.**
+    <a id="liite-c"></a>
+    ## Liite C: 1st price ODE-johtaminen
 
     Symmetrisessä BNE:ssä tarjoaja $i$ valitsee $b(s_i)$. Ensimmäisen asteen ehto johtaa ODE:hen:
 
@@ -291,35 +341,8 @@ def _(mo):
 
     ---
 
-    ## 7. Englantilainen rationaalinen strategia
-
-    Englantilaisessa huutokaupassa tarjoajat eivät jätä suljettua tarjousta — he pysyvät
-    mukana kunnes hinta ylittää oman kynnysarvonsa ja **tippuvat pois**. Strategia on siis
-    tippumishinta $p_k$, ei tarjous $b$. Voittaja maksaa hinnan, jolla toiseksi viimeinen
-    tippui pois.
-
-    $$\boxed{p_k = \frac{s_{(k)} + s_{(1)}}{2}}, \qquad k = 1,\ldots,n-1$$
-
-    Voittaja maksaa $p_{n-1} = \frac{s_{(n-1)} + s_{(1)}}{2}$.
-
-    **Myyjän odotettu tulo.** Voittaja maksaa $p_{n-1} = (s_{(n-1)} + s_{(1)})/2$:
-
-    $$\mathbb{E}[P_\text{eng}] = \frac{\mathbb{E}[s_{(n-1:n)}] + \mathbb{E}[s_{(1:n)}]}{2}
-    = V + \frac{e\cdot\frac{n-3}{n+1} + e\cdot\frac{1-n}{n+1}}{2}
-    = V + \frac{e\cdot\frac{-2}{n+1}}{2} = V - \frac{e}{n+1}$$
-
-    **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
-
-    $$\mathbb{E}[U_\text{eng}] = V - \left(V - \frac{e}{n+1}\right) = \frac{e}{n+1} \qquad \checkmark$$
-
-    **Tuottoranking myyjälle:**
-
-    $$\mathbb{E}[\text{hinta}]:\quad \text{naiivi} \;\geq\; \text{eng. rat.} \;\geq\; \text{suljettu 2nd rat.} = \text{suljettu 1st rat.}$$
-
-    Linkage Principle: $\mathbb{E}[P_\text{eng}] = V - \frac{e}{n+1} > V - \frac{2e}{n+1} = \mathbb{E}[P_\text{suljettu}]$
-    kaikilla $n$. ✓
-
-    **Johtaminen: tippumishinta tasajakaumalla.**
+    <a id="liite-d"></a>
+    ## Liite D: Englantilaisen tippumishinnan johtaminen
 
     Tarjoaja $k$ (signaali $s_k$) tietää oman signaalinsa ja on havainnut ensimmäisen
     tippumisen hinnasta $p_1 = s_{(1)}$ (pienin signaali). Posteriorista $V \sim U(s_k - e,\; s_k + e)$
