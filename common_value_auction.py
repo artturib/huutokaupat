@@ -155,7 +155,7 @@ def _(mo):
 
     **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
 
-    $$\mathbb{E}[U_\text{2nd}] = V - \left(V - \frac{2e}{n+1}\right) = \frac{2e}{n+1} \qquad \checkmark$$
+    $$\mathbb{E}[U] = V - \left(V - \frac{2e}{n+1}\right) = \frac{2e}{n+1} \qquad \checkmark$$
 
     ---
 
@@ -169,24 +169,70 @@ def _(mo):
 
     $$\boxed{b^*(s_i) = s_i - e}$$
 
-    **Johtaminen: ODE.** Tarjoaja signaaliarvolla $s$ harkitsee poikkeamaa $b(t)$-tarjoukseen.
-    Odotettu tuotto (tasainen priori $V$:lle, integrointi vain alueella jossa voitto mahdollinen):
+    **Johtaminen: ODE.**
 
-    $$\pi(t \mid s) = \frac{1}{2e}\int_{s-e}^{t+e} \left(\frac{t-V+e}{2e}\right)^{n-1}(V - b(t))\,dV$$
+    *Askel 1: optimointiongelman asetus.*
+    Etsitään symmetristä BNE:tä: kaikki tarjoajat käyttävät samaa kasvavaa tarjousfunktiota
+    $b(\cdot)$, ja me haluamme löytää sen funktion. Koska $b$ on kasvava, tarjoaja $i$ voittaa
+    täsmälleen silloin kun hänen signaalinsa on korkein: $s_i > s_j$ kaikille $j \neq i$.
 
-    Derivoidaan $t$:n suhteen ja asetetaan nollaksi kohdassa $t=s$ (Leibnizin sääntö;
-    ylärajatermi häviää koska $(t-(t+e)+e)^{n-1}=0$ kun $n>1$).
-    Sijoituksella $u = (s-V+e)/(2e)$:
+    Tarjoaja $i$:n signaali on $s$. Hän harkitsee tarjousta $b(t)$, missä $t$ on
+    **kuvitteellinen signaali** — ikään kuin hän esittäisi olevansa tyyppiä $t$.
+    - Jos $t = s$: hän tarjoaa tasapainon mukaisen tarjouksen
+    - Jos $t \neq s$: hän poikkeaa tasapainosta
 
-    $$\frac{\partial \pi}{\partial t}\bigg|_{t=s} = \frac{n-1}{2e}\underbrace{\int_0^1 u^{n-2}(s+e-b(s)-2eu)\,du}_{} - \frac{b'(s)}{2e}\underbrace{\int_0^1 u^{n-1}\,du}_{1/n} = 0$$
+    $\pi(t \mid s)$ on tarjoajan $i$ **odotettu hyöty** (sama asia kuin $U$, käytetään $\pi$-merkintää
+    korostamaan, että optimoidaan $t$:n suhteen) kun hän tarjoaa $b(t)$ mutta tietää signaalinsa
+    olevan $s$.
 
-    Ensimmäinen integraali: $(s+e-b(s))/(n-1) - 2e/n$. Kertomalla $(n-1)$:
+    *Askel 2: odotetun hyödyn kaava.*
+    Tarjoaja voittaa jos $b(t) > b(s_j)$ kaikille $j$, eli $t > s_j$ kaikille $j$ (koska $b$ on
+    kasvava). Voittaessaan hän maksaa $b(t)$ ja saa kohteen arvoltaan $V$. Koska $V$ on tuntematon,
+    integroidaan posteriorin $f(V \mid s_i = s) = \frac{1}{2e}$ yli:
 
-    $$\frac{1}{2e}\bigl[s+e-b(s) - \tfrac{2e(n-1)}{n}\bigr] - \frac{b'(s)}{2en} = 0$$
+    $$\pi(t \mid s) = \frac{1}{2e}\int \underbrace{P(\text{kaikki } s_j < t \mid V)}_{\text{voittotodennäköisyys}} \cdot \underbrace{(V - b(t))}_{\text{hyöty voittaessa}}\,dV$$
 
-    Kertomalla $2en$:
+    Voittotodennäköisyys: kukin $s_j = V + \varepsilon_j < t$ tapahtuu kun $\varepsilon_j < t - V$,
+    todennäköisyydellä $\frac{t-V+e}{2e}$ kun $V \in (t-e, t+e)$, ja nolla kun $V > t+e$.
+    Integrointialue: $V \in (s-e, s+e)$ (oma signaali) leikataan $V \leq t+e$ (muuten P=0).
+    Koska tarkastellaan $t \leq s$, ylärajaksi tulee $t+e$:
 
-    $$n(s+e-b(s)) - 2e(n-1) = 2e\,b'(s)$$
+    $$\pi(t \mid s) = \frac{1}{2e}\int_{s-e}^{t+e} \underbrace{\left(\frac{t-V+e}{2e}\right)^{n-1}}_{P(\text{kaikki muut} < t \mid V)}\underbrace{(V - b(t))}_{\text{hyöty}}\,dV$$
+
+    *Askel 3: tasapainoehto ja derivointi.*
+    Tasapainossa $t = s$ on optimaalinen, joten $\frac{\partial \pi}{\partial t}\big|_{t=s} = 0$.
+    Leibnizin sääntö: $\frac{d}{dt}\int_{a}^{g(t)} f(t,V)\,dV = f(t,g(t))\cdot g'(t) + \int_a^{g(t)}\frac{\partial f}{\partial t}\,dV$.
+
+    **Ylärajatermi** ($V = t+e$, $g'(t) = 1$):
+
+    $$\left(\frac{t-(t+e)+e}{2e}\right)^{n-1}\cdot((t+e)-b(t)) = 0^{n-1}\cdot(\ldots) = 0 \quad (n > 1)$$
+
+    Ylärajatermi häviää, koska voittotodennäköisyys on nolla kun $V = t+e$.
+
+    **Integrandin osittaisderivaatat** $t$:n suhteen — integrandi on tulo kahdesta $t$:stä
+    riippuvasta tekijästä, joten käytetään tulon derivoimissääntöä:
+
+    $$\frac{\partial}{\partial t}\left[\left(\frac{t-V+e}{2e}\right)^{n-1}(V-b(t))\right]
+    = \underbrace{(n-1)\left(\frac{t-V+e}{2e}\right)^{n-2}\frac{1}{2e}(V-b(t))}_{\text{1. tekijä derivoituu, 2. pysyy}}
+    \;-\; \underbrace{\left(\frac{t-V+e}{2e}\right)^{n-1}b'(t)}_{\text{1. pysyy, 2. derivoituu}}$$
+
+    *Askel 4: evaluoidaan $t = s$, sijoitetaan $u = (s-V+e)/(2e)$.*
+    Kun $u = (s-V+e)/(2e)$: $V = s+e-2eu$, $dV = -2e\,du$, rajat $u: 1 \to 0$:
+
+    $$\frac{\partial\pi}{\partial t}\bigg|_{t=s}
+    = \frac{1}{2e}\int_0^1\left[\frac{n-1}{2e}\cdot u^{n-2}(s+e-b(s)-2eu) - u^{n-1}b'(s)\right]2e\,du = 0$$
+
+    *Askel 5: lasketaan integraalit ja järjestetään.*
+
+    $$\frac{n-1}{2e}\int_0^1 u^{n-2}(s+e-b(s)-2eu)\,du
+    = \frac{n-1}{2e}\left[\frac{s+e-b(s)}{n-1} - \frac{2e}{n}\right]
+    = \frac{s+e-b(s)}{2e} - \frac{n-1}{n}$$
+
+    $$\int_0^1 u^{n-1}b'(s)\,du = \frac{b'(s)}{n}$$
+
+    Yhdistämällä ja kertomalla $2en$:
+
+    $$n(s+e-b(s)) - 2e(n-1) - 2e\,b'(s) = 0$$
 
     $$\boxed{2e\,b'(s) + n\,b(s) = ns - e(n-2)}$$
 
