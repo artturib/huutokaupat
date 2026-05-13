@@ -293,6 +293,11 @@ def _(mo):
 
     ## 7. Englantilainen rationaalinen strategia
 
+    Englantilaisessa huutokaupassa tarjoajat eivät jätä suljettua tarjousta — he pysyvät
+    mukana kunnes hinta ylittää oman kynnysarvonsa ja **tippuvat pois**. Strategia on siis
+    tippumishinta $p_k$, ei tarjous $b$. Voittaja maksaa hinnan, jolla toiseksi viimeinen
+    tippui pois.
+
     $$\boxed{p_k = \frac{s_{(k)} + s_{(1)}}{2}}, \qquad k = 1,\ldots,n-1$$
 
     Voittaja maksaa $p_{n-1} = \frac{s_{(n-1)} + s_{(1)}}{2}$.
