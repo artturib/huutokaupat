@@ -48,6 +48,20 @@ def _(mo):
 
     $$\mathbb{E}[\varepsilon_{(k:n)}] = e \cdot \frac{2k - n - 1}{n+1}$$
 
+    **Johtaminen.** Normalisoidaan $U_i = \frac{\varepsilon_i + e}{2e} \sim \text{Uniform}(0,1)$.
+    $k$:nnen järjestysstatistiikan tiheysfunktio on
+
+    $$f_{(k:n)}(u) = \frac{n!}{(k-1)!\,(n-k)!}\,u^{k-1}(1-u)^{n-k} \qquad u \in [0,1]$$
+
+    (tämä on Beta$(k,\,n-k+1)$-jakauma). Odotusarvo:
+
+    $$\mathbb{E}[U_{(k:n)}] = \frac{n!}{(k-1)!\,(n-k)!} \int_0^1 u^k(1-u)^{n-k}\,du
+    = \frac{n!}{(k-1)!\,(n-k)!} \cdot \frac{k!\,(n-k)!}{(n+1)!} = \frac{k}{n+1}$$
+
+    Skaalauksella $\varepsilon_i = -e + 2e\,U_i$:
+
+    $$\mathbb{E}[\varepsilon_{(k:n)}] = -e + 2e \cdot \frac{k}{n+1} = e\cdot\frac{2k-n-1}{n+1} \qquad \checkmark$$
+
     ---
 
     ## 4. Benchmark strategia: jokainen ostaja tarjoaa oman signaalinsa verran
