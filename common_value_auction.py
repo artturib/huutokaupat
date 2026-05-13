@@ -7,19 +7,22 @@ app = marimo.App(width="medium")
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    # Common Value Auction — Simulaatio
+    # Common Value-huutokauppa
 
     ## Johdanto
 
-    Huutokaupassa myydään kohde, jonka todellinen arvo $V$ on **sama kaikille** mutta
-    **tuntematon** (common value). Tyypillisiä esimerkkejä ovat öljykenttä, yrityskauppa
-    tai taidehuutokauppa. Kukin ostajaehdokas saa yksityisen, kohinaisen signaalin $V$:stä.
+     Motivoiduin pohtimaan huutokauppamekanismien vaikutusta myytävän tuotteen hintaan Helsingin asuinrakentamistonttien luovuttamisen kautta. Asuntotontit eivät vastaa täysin tätä ideaalista ympäristöä, missä myytävän kohteen arvo on tasan sama kaikille. Mutta tässä havainnollistetut huutokauppamekanismin vaikutukset hintaan pätevät myös silloin, kun huutokaupan kohteen arvo on osaksi yhteinen ja osaksi yksityinen rakennuttajien kesken.
 
-    **Mitä tässä tehdään.** Johdetaan analyyttiset tasapainostrategiat kolmelle
-    huutokauppamuodolle ja vahvistetaan tulokset Monte Carlo -simulaatiolla.
+     Huutokaupassa myydään kohde, jonka todellinen arvo $V$ on **sama kaikille** mutta
+    **tuntematon** (common value). Kukin ostajaehdokas saa yksityisen, kohinaisen signaalin $V$:stä.
 
-    **Kolme protokollaa:** suljettu second-price (Vickrey), suljettu first-price,
-    englantilainen (nouseva hinta).
+    Tässä muistiossa esitellään (ja johdetaan) tasapainostrategiat kolmelle
+    huutokauppamuodolle analyyttisesti ja vahvistetaan tulokset Monte Carlo -simulaatiolla.
+
+    Muistiossa vertaillaan kolmea eri huutokauppamekanismia:
+    1. **Second-price sealed-bid auction** Huutokauppa, jossa tarjoajat jättävät tarjouksen suljettuun kirjekuoreen. Korkeimman tarjouksen jättänyt on velvollinen ostamaan huutokaupan kohteen toiseksi korkeimman tarjouksen hinnalla
+    2. **First-price sealed-bid auction** Huutokauppa, jossa tarjoajat jättävät tarjouksen suljettuun kirjekuoreen. Korkeimman tarjouksen jättänyt on velvollinen ostamaan huutokaupan kohteen tarjoamallaan hinnalla.
+    3. **Open-bid auction** Huutokauppa, jossa tarjoajat jättävät tarjouksen julkisesti kauppapaikalle. Korkeimman tarjouksen jättänyt on velvollinen ostamaan huutokaupan kohteen tarjoamallaan hinnalla. Tämä hinta on käytännössä toiseksi korkeimman tarjoajan hinta, koska tarjoukset ovat julkisia, niin voittaja voi tarjota vain hieman enemmän kuin paljonko toiseksi eniten tarjonnut on valmis tarjoamaan.
 
     Alla esitetään tulokset näiden protokollien välillä, kun tarjoajat käyttävät tarjoajien hyödyn maksimoivaa strategiaa tarjoamiseen ja vertailun vuoksi strategiaa, missä tarjoavat oman signaalinsa verran.
 
@@ -29,18 +32,16 @@ def _(mo):
     |---|---|---|
     | Tarjous = oma sigaali | $e\,\frac{3-n}{n+1}$ | $V + e\,\frac{n-3}{n+1}$ |
     | Suljetun huutokaupan optimistrategia (1st = 2nd) | $\dfrac{2e}{n+1}$ | $V - \dfrac{2e}{n+1}$ |
-    | Avoimen huutokaupan (englantilainen) optimistrategia | $\dfrac{e}{n+1}$ | $V - \dfrac{e}{n+1}$ |
+    | Avoimen huutokaupan optimistrategia | $\dfrac{e}{n+1}$ | $V - \dfrac{e}{n+1}$ |
 
     **Johtopäätökset:**
 
-    1. **Winner's curse:** naiivi ostaja maksaa odotetusti liikaa aina kun $n > 3$.
-       Optimistrategioissa tarjoukset ovat matalampia kuin signaali.
+    1. Vaikka tarjoajan saama tieto huutokaupan kohteen arvosta on harhaton, eli vastaa keskimäärin huutokaupan kohteen arvoa, niin jos tarjoaja tarjoaa oman tietonsa verran, niin huutokaupan voittaja maksaa keskimäärin liikaa, jos tarjoajia on yli 3. Optimistrategioissa tarjoukset ovat matalampia kuin yksityinen tieto kohteen arvosta.
 
-    2. **Revenue equivalence:** suljettu first-price ja second-price tuottavat myyjälle
-       täsmälleen saman odotetun tulon, vaikka voittajan maksu määräytyy eri tavalla.
+    2. Suljettuissa huutokaupoissa hinnan odotusarvo on sama riippumatta siitä, valitaanko myyntihinnaksi korkein vai toiseksi korkein tarjous. Tämä johtuu siitä, että tarjoajan optimistrategia verrattuna omaan signaaliin on pienempi huutokaupassa, jossa kohde myydään korkeimman tarjouksen hinnalla.
 
-    3. **Linkage Principle:** englantilainen huutokauppa tuottaa myyjälle enemmän kuin
-       suljettu kaikilla $n$. Tippumishinnat paljastavat informaatiota, joka nostaa hintaa.
+    3. Avoin huutokauppa tuottaa myyjälle suuremman tulon kuin suljetut huutokaupat. Tämä johtuu siitä, että huutokaupan aikana muiden tarjoajien käyttäytyminen tuo julkiseksi tietoa huutokaupan kohteen arvosta, joka keskimäärin kasvattaa tarjoajien maksuhalukkuutta.
+
 
     ---
 
@@ -57,17 +58,17 @@ def _(mo):
 
     ## 2. Protokollat
 
-    ### 2.1 Suljettu second-price auction (Vickrey)
+    ### 2.1 Suljettu second-price huutokauppa (Vickrey)
 
     Jokainen tarjoaja jättää salaisen tarjouksen. Korkein tarjoaja voittaa ja **maksaa toiseksi
     korkeimman tarjouksen**.
 
-    ### 2.2 Suljettu first-price auction
+    ### 2.2 Suljettu first-price huutokauppa
 
     Jokainen tarjoaja jättää salaisen tarjouksen. Korkein tarjoaja voittaa ja **maksaa oman
     tarjouksensa**.
 
-    ### 2.3 Englantilainen huutokauppa
+    ### 2.3 Avoin huutokauppa
 
     Hinta nousee jatkuvasti. Kukin tarjoaja pysyy mukana kunnes hinta ylittää oman strategiansa
     mukaisen kynnyksen. Viimeisenä jäljelle jäävä voittaa ja maksaa hinnan, jolla toiseksi
@@ -107,7 +108,7 @@ def _(mo):
 
     ## 5. Optimistrategia suljetussa 2nd price huutokaupassa
 
-    $$b^*(s) = s - e\cdot\frac{n-1}{n+1}$$
+    $$\boxed{b^*(s_i) = s_i - e\cdot\frac{n-1}{n+1}}$$
 
     **Myyjän odotettu tulo.** Hinta = toiseksi korkein tarjous $= b^*(s_{(n-1:n)}) = s_{(n-1:n)} - e\cdot\frac{n-1}{n+1}$:
 
@@ -144,14 +145,14 @@ def _(mo):
 
     ---
 
-    ## 7. Englantilainen rationaalinen strategia
+    ## 7. Optimistrategia avoimessa huutokaupassa
 
-    Englantilaisessa huutokaupassa tarjoajat eivät jätä suljettua tarjousta — he pysyvät
+    Avoimessa huutokaupassa tarjoajat eivät jätä suljettua tarjousta — he pysyvät
     mukana kunnes hinta ylittää oman kynnysarvonsa ja **tippuvat pois**. Strategia on siis
-    tippumishinta $p_k$, ei tarjous $b$. Voittaja maksaa hinnan, jolla toiseksi viimeinen
+    tippumishinta $p(s_i)$, ei tarjous $b$. Optimaalinen poisjääntihinta on keskiarvo omasta signaalista ja siitä signaalista, jolla ensimmäinen poisjääjä tippuis pois. Voittaja maksaa hinnan, jolla toiseksi viimeinen
     tippui pois.
 
-    $$\boxed{p_k = \frac{s_{(k)} + s_{(1)}}{2}}, \qquad k = 1,\ldots,n-1$$
+    $$\boxed{p(s_i) = \frac{s_{i} + s_{1}}{2}}, \qquad k = 1,\ldots,n-1$$
 
     Voittaja maksaa $p_{n-1} = \frac{s_{(n-1)} + s_{(1)}}{2}$.
 
@@ -344,6 +345,18 @@ def _(mo):
     <a id="liite-d"></a>
     ## Liite D: Englantilaisen tippumishinnan johtaminen
 
+    **Ensimmäinen tippuja ($k = 1$).**
+    Ennen yhtään tippumista ei ole paljastunut mitään. Tarjoajan ainoa tieto on oma signaali,
+    joten posteriori on $V \mid s_{(1)} \sim U(s_{(1)}-e,\; s_{(1)}+e)$ ja odotusarvo:
+
+    $$p_1 = \mathbb{E}[V \mid s_{(1)}] = s_{(1)}$$
+
+    Ensimmäinen tippuja tippuu siis omalla signaalillaan, ja tämä paljastaa $s_{(1)}$ muille.
+
+    Huomaa: kaava $p_k = (s_{(k)} + s_{(1)})/2$ pätee myös $k=1$:lle, sillä
+    $p_1 = (s_{(1)} + s_{(1)})/2 = s_{(1)}$ ✓
+
+    **Myöhemmät tippujat ($k \geq 2$).**
     Tarjoaja $k$ (signaali $s_k$) tietää oman signaalinsa ja on havainnut ensimmäisen
     tippumisen hinnasta $p_1 = s_{(1)}$ (pienin signaali). Posteriorista $V \sim U(s_k - e,\; s_k + e)$
     päivittyy Bayesilaisesti:
