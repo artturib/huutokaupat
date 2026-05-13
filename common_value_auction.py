@@ -205,7 +205,13 @@ def _(mo):
     Voittotodennäköisyys: kukin $s_j = V + \varepsilon_j < t$ tapahtuu kun $\varepsilon_j < t - V$,
     todennäköisyydellä $\frac{t-V+e}{2e}$ kun $V \in (t-e, t+e)$, ja nolla kun $V > t+e$.
     Integrointialue: $V \in (s-e, s+e)$ (oma signaali) leikataan $V \leq t+e$ (muuten P=0).
-    Koska tarkastellaan $t \leq s$, ylärajaksi tulee $t+e$:
+
+    Tarkastellaan vain poikkeamia alaspäin $t \leq s$. Tämä on puhtaasti tekninen valinta:
+    $t \leq s$ antaa yksinkertaisemman integrointialueen. FOC evaluoidaan pisteessä $t = s$,
+    ja koska $\pi(t \mid s)$ on sileä $t$:n suhteen, vasemmanpuoleinen derivaatta on sama
+    kuin oikeanpuoleinen — sama ODE saadaan kummastakin suunnasta.
+
+    Kun $t \leq s$: $\min(s+e,\, t+e) = t+e$, joten ylärajaksi tulee $t+e$:
 
     $$\pi(t \mid s) = \frac{1}{2e}\int_{s-e}^{t+e} \underbrace{\left(\frac{t-V+e}{2e}\right)^{n-1}}_{P(\text{kaikki muut} < t \mid V)}\underbrace{(V - b(t))}_{\text{hyöty}}\,dV$$
 
