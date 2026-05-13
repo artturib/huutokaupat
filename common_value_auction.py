@@ -9,6 +9,41 @@ def _(mo):
     mo.md(r"""
     # Common Value Auction — Simulaatio
 
+    ## Johdanto
+
+    Huutokaupassa myydään kohde, jonka todellinen arvo $V$ on **sama kaikille** mutta
+    **tuntematon** (common value). Tyypillisiä esimerkkejä ovat öljykenttä, yrityskauppa
+    tai taidehuutokauppa. Kukin ostajaehdokas saa yksityisen, kohinaisen signaalin $V$:stä.
+
+    **Mitä tässä tehdään.** Johdetaan analyyttiset tasapainostrategiat kolmelle
+    huutokauppamuodolle ja vahvistetaan tulokset Monte Carlo -simulaatiolla.
+
+    **Kolme protokollaa:** suljettu second-price (Vickrey), suljettu first-price,
+    englantilainen (nouseva hinta).
+
+    **Kolme strategiaa:** naiivi ($b = s$), rationaalinen suljettu, rationaalinen englantilainen.
+
+    **Keskeiset tulokset:**
+
+    | | Ostajan E[utility] | Myyjän E[tulo] |
+    |---|---|---|
+    | Naiivi | $e\,\frac{3-n}{n+1}$ — negatiivinen kun $n>3$ | $V + e\,\frac{n-3}{n+1}$ |
+    | Suljettu rationaalinen (1st = 2nd) | $\dfrac{2e}{n+1}$ | $V - \dfrac{2e}{n+1}$ |
+    | Englantilainen rationaalinen | $\dfrac{e}{n+1}$ | $V - \dfrac{e}{n+1}$ |
+
+    **Johtopäätökset:**
+
+    1. **Winner's curse:** naiivi ostaja maksaa odotetusti liikaa aina kun $n > 3$.
+       Rationaalinen strategia korjaa tämän bid shadingilla.
+
+    2. **Revenue equivalence:** suljettu first-price ja second-price tuottavat myyjälle
+       täsmälleen saman odotetun tulon, vaikka voittajan maksu määräytyy eri tavalla.
+
+    3. **Linkage Principle:** englantilainen huutokauppa tuottaa myyjälle enemmän kuin
+       suljettu kaikilla $n$. Tippumishinnat paljastavat informaatiota, joka nostaa hintaa.
+
+    ---
+
     ## 1. Malli
 
     Kohteella on **yksi todellinen arvo** $V$, joka on sama kaikille tarjoajille mutta tuntematon.
@@ -78,6 +113,12 @@ def _(mo):
     $$\mathbb{E}[U_\text{naiivi}] = V - \mathbb{E}[s_{(n-1:n)}] = -\mathbb{E}[\varepsilon_{(n-1:n)}]
     = -e\cdot\frac{2(n-1)-n-1}{n+1} = e\cdot\frac{3-n}{n+1} \qquad \checkmark$$
 
+    **Myyjän odotettu tulo.** Koska $\mathbb{E}[P] = V - \mathbb{E}[U]$:
+
+    $$\mathbb{E}[P_\text{naiivi}] = V - e\cdot\frac{3-n}{n+1} = V + e\cdot\frac{n-3}{n+1}$$
+
+    Huomaa: kun $n > 3$, myyjä saa *enemmän* kuin $V$ — winner's curse siirtää rahaa ostajalta myyjälle.
+
     ---
 
     ## 5. Suljettu second-price rationaalinen
@@ -105,6 +146,10 @@ def _(mo):
 
     $$\mathbb{E}[U_\text{2nd}] = V - \mathbb{E}[s_{(n-1:n)}] + \delta
     = -e\cdot\frac{n-3}{n+1} + e\cdot\frac{n-1}{n+1} = \frac{2e}{n+1} \qquad \checkmark$$
+
+    **Myyjän odotettu tulo:**
+
+    $$\mathbb{E}[P_\text{2nd}] = V - \frac{2e}{n+1}$$
 
     ---
 
@@ -153,6 +198,10 @@ def _(mo):
 
     $$\mathbb{E}[U_{\text{1st, rat}}] = e - e\cdot\frac{n-1}{n+1} = \frac{2e}{n+1}$$
 
+    **Myyjän odotettu tulo:**
+
+    $$\mathbb{E}[P_\text{1st}] = V - \frac{2e}{n+1} = \mathbb{E}[P_\text{2nd}]$$
+
     **Revenue equivalence:** first-price ja second-price tuottavat **saman odotetun tulon
     myyjälle** ($V - 2e/(n+1)$). Tämä pätee vaikka kyseessä on common value -huutokauppa,
     koska signaalit ovat ehdollisesti riippumattomia $V$:n suhteen.
@@ -192,7 +241,11 @@ def _(mo):
     = -\frac{\mathbb{E}[\varepsilon_{(n-1:n)}] + \mathbb{E}[\varepsilon_{(1:n)}]}{2}
     = -\frac{1}{2}\left[e\cdot\frac{n-3}{n+1} + e\cdot\frac{1-n}{n+1}\right] = \frac{e}{n+1}$$
 
-    Vertailu: $\mathbb{E}[U_\text{eng}] = \frac{e}{n+1} < \frac{2e}{n+1} = \mathbb{E}[U_\text{suljettu}]$
+    **Myyjän odotettu tulo:**
+
+    $$\mathbb{E}[P_\text{eng}] = V - \frac{e}{n+1}$$
+
+    Vertailu: $\mathbb{E}[P_\text{eng}] = V - \frac{e}{n+1} > V - \frac{2e}{n+1} = \mathbb{E}[P_\text{suljettu}]$
     kaikilla $n$ — englantilainen on aina parempi myyjälle. Linkage Principle pätee. ✓
 
     **Tuottoranking myyjälle:**
