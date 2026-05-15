@@ -9,37 +9,59 @@ def _(mo):
     mo.md(r"""
     # Yhteisvara-huutokauppa: normaalijakautuneet signaalit
 
-    Sama perusrakenne kuin tasajakautuneiden signaalien mallissa, mutta signaalivirhe on
-    nyt normaalijakautunut. Analyysimme kattaa:
+    ## Johdanto
 
-    - Suljettu second-price huutokauppa — tasapainostrategia numeerisella korjauksella
-    - Englantilainen huutokauppa — tippumisstrategia eroaa tasajakaumasta
-    """)
-    return
+    Sama perusrakenne kuin tasajakautuneiden signaalien mallissa: huutokaupassa myydään kohde,
+    jonka todellinen arvo $V$ on **sama kaikille** mutta **tuntematon** (common value).
+    Kukin ostajaehdokas saa yksityisen, kohinaisen signaalin $V$:stä.
 
+    **Ero tasajakaumaan:** Normaalijakaumassa signaalivirheellä ei ole rajattua tukijoukkoa,
+    ja posteriori $V$:lle päivittyy konjugaattiominaisuuden nojalla *jokaisesta* paljastuneesta
+    signaalista — ei vain ääripäistä. Tästä syystä englantilaisen huutokaupan strategia
+    poikkeaa tasajakaumasta: kaikki aiemmin tippuneiden signaalit vaikuttavat tippumishintaan.
 
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
+    Koska siistejä suljettuja kaavoja ei ole yleiselle $n$:lle, tulokset ilmaistaan numeerisesti
+    laskettavien korjaustermien $c(n)$ ja $d(n)$ sekä järjestysstatistiikkojen odotusarvojen
+    $\mathbb{E}[Z_{(k:n)}]$ avulla.
+
+    **Merkinnät:** $Z_{(k:n)}$ on standardinormaalijakauman $k$:s järjestysstatistiikka
+    ($n$ i.i.d. $N(0,1)$-muuttujaa kasvavassa järjestyksessä). Symmetriasta:
+    $\mathbb{E}[Z_{(k:n)}] = -\mathbb{E}[Z_{(n-k+1:n)}]$ ja $\sum_{k=1}^n \mathbb{E}[Z_{(k:n)}] = 0$.
+
+    **Keskeiset tulokset:**
+
+    | | Ostajan E[utility] | Myyjän E[tulo] |
+    |---|---|---|
+    | Tarjous = oma signaali | $-\sigma\,\mathbb{E}[Z_{(n-1:n)}]$ | $V + \sigma\,\mathbb{E}[Z_{(n-1:n)}]$ |
+    | Suljettu 2nd price | $\sigma\!\left(c(n) - \mathbb{E}[Z_{(n-1:n)}]\right)$ | $V - \sigma\!\left(c(n) - \mathbb{E}[Z_{(n-1:n)}]\right)$ |
+    | Suljettu 1st price | $\sigma\!\left(d(n) - \mathbb{E}[Z_{(n:n)}]\right)$ | $V - \sigma\!\left(d(n) - \mathbb{E}[Z_{(n:n)}]\right)$ |
+    | Avoin huutokauppa | $\dfrac{\sigma\!\left(\mathbb{E}[Z_{(n:n)}] - \mathbb{E}[Z_{(n-1:n)}]\right)}{n}$ | $V - \dfrac{\sigma\!\left(\mathbb{E}[Z_{(n:n)}] - \mathbb{E}[Z_{(n-1:n)}]\right)}{n}$ |
+
+    missä $c(n)$ on 2nd price -tarjouskorjaus ja $d(n) = c(n) + 1/\mathbb{E}[Z_{(n:n)}]$
+    on 1st price -tarjouskorjaus (molemmat lasketaan numeerisesti).
+
+    **Johtopäätökset:**
+
+    1. Naiivi strategia (tarjoa oma signaali) on voittajalle tappiollinen kun $n \geq 3$
+       (jolloin $\mathbb{E}[Z_{(n-1:n)}] > 0$) — winner's curse.
+
+    2. Suljettu 1st price -huutokauppa tuottaa myyjälle **vähemmän** kuin 2nd price.
+       Revenue equivalence **ei päde** common value -huutokaupoissa — toisin kuin
+       yksityisten arvojen huutokaupoissa.
+
+    3. Avoin huutokauppa tuottaa myyjälle **eniten** (kytkentäperiaate, Milgrom–Weber 1982):
+       muiden tippumishinnat paljastavat tietoa $V$:stä ja nostavat jäljelle jäävien arvioita.
+
+    ---
+
     ## 1. Malli
 
-    - Kohteen arvo $V$ — kaikille sama, tuntematon
-    - Tarjoaja $i$ saa signaalin $s_i = V + \varepsilon_i$, missä $\varepsilon_i \overset{iid}{\sim} N(0, \sigma^2)$
-    - $n$ tarjoajaa, symmetrinen tilanne
+    Kohteella on **yksi todellinen arvo** $V$, joka on sama kaikille tarjoajille mutta tuntematon.
+    Kukin $n$ tarjoajista saa yksityisen **signaalin**
 
-    **Ero tasajakaumaan:** Tasajakaumassa $\varepsilon_i \sim U(-e,e)$ virheellä on rajattu
-    tukijoukko $[-e, e]$. Normaalijakaumassa virhe voi periaatteessa olla mielivaltaisen suuri,
-    joskin $|\varepsilon_i| > 3\sigma$ on epätodennäköistä ($< 0.3\%$).
-    """)
-    return
+    $$s_i = V + \varepsilon_i, \qquad \varepsilon_i \overset{\text{iid}}{\sim} N(0,\sigma^2)$$
 
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    ## 2. Posteriori
-
-    Tasaisella priorilla $V$:lle (tietämättömyys a priori) Bayesin kaavasta seuraa:
+    **Posteriori tasaisella priorilla $p(V) \propto 1$:**
 
     $$V \mid s_i \;\sim\; N(s_i,\; \sigma^2)$$
 
@@ -47,80 +69,285 @@ def _(mo):
 
     $$V \mid s_1, \ldots, s_k \;\sim\; N\!\left(\bar{s}_k,\; \frac{\sigma^2}{k}\right), \qquad \bar{s}_k = \frac{s_1 + \cdots + s_k}{k}$$
 
-    Jokainen uusi havainto siirtää posterioria kohti signaalien juoksevaa keskiarvoa ja
-    kaventaa epävarmuutta. Tämä on normaalijakauman konjugaattiominaisuus: tasajakaumassa
-    vastaava ilmiö ei esiinny — siellä vain ääripäät (minimi ja maksimi) rajaavat
-    posterioria, eivät väliarvot.
+    Normaalijakauman konjugaattiominaisuus: jokainen lisähavainto siirtää posterioria
+    kohti signaalien juoksevaa keskiarvoa ja kaventaa epävarmuutta.
+    Tasajakaumassa sen sijaan vain ääriarvot (min ja max) rajaavat posterioria —
+    väliarvot ovat redundantteja.
+
+    ---
+
+    ## 2. Protokollat
+
+    ### 2.1 Suljettu second-price huutokauppa (Vickrey)
+
+    Jokainen tarjoaja jättää salaisen tarjouksen. Korkein tarjoaja voittaa ja **maksaa toiseksi
+    korkeimman tarjouksen**.
+
+    ### 2.2 Suljettu first-price huutokauppa
+
+    Jokainen tarjoaja jättää salaisen tarjouksen. Korkein tarjoaja voittaa ja **maksaa oman
+    tarjouksensa**.
+
+    ### 2.3 Avoin huutokauppa
+
+    Hinta nousee jatkuvasti. Kukin tarjoaja pysyy mukana kunnes hinta ylittää oman
+    tippumishintansa $p(s_i)$. Viimeisenä jäljelle jäävä voittaa ja maksaa hinnan,
+    jolla toiseksi viimeinen tippui pois.
+
+    ---
+
+    ## 3. Benchmark: tarjoaja tarjoaa oman signaalinsa
+
+    Tarjoaja tarjoaa suoraan signaalinsa: $b_i = s_i$.
+
+    **Myyjän odotettu tulo.** Voittaja on korkein signaali $s_{(n:n)} = V + \sigma Z_{(n:n)}$,
+    hinta on toiseksi korkein signaali $s_{(n-1:n)} = V + \sigma Z_{(n-1:n)}$:
+
+    $$\mathbb{E}[P_\text{naiivi}] = V + \sigma\,\mathbb{E}[Z_{(n-1:n)}]$$
+
+    **Ostajan odotettu utility:** $\mathbb{E}[U_\text{naiivi}] = -\sigma\,\mathbb{E}[Z_{(n-1:n)}]$
+
+    Tämä on **negatiivinen kun $n \geq 3$** — winner's curse iskee.
+
+    ---
+
+    ## 4. Optimistrategia suljetussa 2nd price huutokaupassa
+
+    $$\boxed{b^*(s_i) = s_i - \sigma\,c(n)}$$
+
+    missä $c(n) \geq 0$ on numeerisesti laskettava winner's curse -korjaus.
+    Suljettu muoto $n = 3$: $c(3) = 1/\!\sqrt{3\pi} \approx 0{,}326$.
+
+    [→ Liite A: Optimistrategian johtaminen](#liite-a)
+
+    **Myyjän odotettu tulo.** Hinta = toiseksi korkein tarjous $= b^*(s_{(n-1:n)})$:
+
+    $$\mathbb{E}[P_\text{2nd}] = \mathbb{E}[s_{(n-1:n)}] - \sigma\,c(n)
+    = V + \sigma\,\mathbb{E}[Z_{(n-1:n)}] - \sigma\,c(n)
+    = V - \sigma\!\left(c(n) - \mathbb{E}[Z_{(n-1:n)}]\right)$$
+
+    **Ostajan odotettu utility:**
+
+    $$\mathbb{E}[U_\text{2nd}] = \sigma\!\left(c(n) - \mathbb{E}[Z_{(n-1:n)}]\right) > 0 \qquad \checkmark$$
+
+    ---
+
+    ## 5. Optimistrategia suljetussa 1st price huutokaupassa
+
+    $$\boxed{b^*(s_i) = s_i - \sigma\,d(n)}, \qquad d(n) = c(n) + \frac{1}{\mathbb{E}[Z_{(n:n)}]}$$
+
+    missä $c(n)$ on sama winner's curse -korjaus kuin 2nd pricessa, ja lisätermi
+    $1/\mathbb{E}[Z_{(n:n)}]$ on strateginen alihinnoittelu — tarjoajan täytyy sheida enemmän,
+    koska oma bid on myös maksettu hinta.
+
+    [→ Liite B: Optimistrategian johtaminen](#liite-b)
+
+    **Myyjän odotettu tulo.** Voittaja (korkein signaali) maksaa oman tarjouksensa:
+
+    $$\mathbb{E}[P_\text{1st}] = \mathbb{E}[s_{(n:n)}] - \sigma\,d(n)
+    = V + \sigma\,\mathbb{E}[Z_{(n:n)}] - \sigma\,d(n)
+    = V - \sigma\!\left(d(n) - \mathbb{E}[Z_{(n:n)}]\right)$$
+
+    **Ostajan odotettu utility:**
+
+    $$\mathbb{E}[U_\text{1st}] = \sigma\!\left(d(n) - \mathbb{E}[Z_{(n:n)}]\right) > 0 \qquad \checkmark$$
+
+    **Vertailu 2nd priceen:** $\mathbb{E}[P_\text{1st}] < \mathbb{E}[P_\text{2nd}]$ —
+    1st price tuottaa myyjälle vähemmän. Revenue equivalence ei päde common value
+    -huutokaupoissa (vrt. yksityisten arvojen huutokauppa, jossa $\mathbb{E}[P_\text{1st}] = \mathbb{E}[P_\text{2nd}]$).
+
+    ---
+
+    ## 6. Optimistrategia avoimessa huutokaupassa
+
+    Avoimessa huutokaupassa tarjoajat eivät jätä suljettua tarjousta — he pysyvät mukana
+    kunnes hinta ylittää oman tippumishintansa. Strategia on tippumishinta $p_k(s_k)$,
+    joka riippuu omasta signaalista ja kaikista aiemmin paljastuneista signaaleista.
+
+    $$\boxed{p_k = \frac{s_{(1)} + \cdots + s_{(k-1)} + 2\,s_{(k)}}{k+1}} \qquad k = 1,\ldots,n-1$$
+
+    **Ero tasajakaumaan:** Tasajakaumassa $p_k = (s_{(1)} + s_{(k)})/2$ — vain alin signaali ja oma signaali.
+    Normaalijakaumassa mukaan tulevat **kaikki** välisignaalit, koska normaaliposteriori on
+    konjugaatti ja jokainen havainto siirtää posterioriodotusarvoa.
+
+    [→ Liite C: Tippumishinnan johtaminen](#liite-c)
+
+    Voittajan maksama hinta ($k = n-1$, kaikki $n-2$ matalampaa signaalia paljastuneita):
+
+    $$P = p_{n-1} = \frac{s_{(1)} + \cdots + s_{(n-2)} + 2\,s_{(n-1)}}{n}$$
+
+    **Myyjän odotettu tulo.** Käyttäen $\sum_{k=1}^n \mathbb{E}[Z_{(k:n)}] = 0$:
+
+    $$\mathbb{E}[P_\text{eng}] = V - \frac{\sigma\!\left(\mathbb{E}[Z_{(n:n)}] - \mathbb{E}[Z_{(n-1:n)}]\right)}{n}$$
+
+    **Ostajan odotettu utility:**
+
+    $$\mathbb{E}[U_\text{eng}] = \frac{\sigma\!\left(\mathbb{E}[Z_{(n:n)}] - \mathbb{E}[Z_{(n-1:n)}]\right)}{n} > 0 \qquad \checkmark$$
+
+    **Tuottoranking myyjälle:**
+
+    $$\mathbb{E}[\text{hinta}]:\quad \text{naiivi} \;\geq\; \mathbb{E}[P_\text{eng}] \;>\; \mathbb{E}[P_\text{2nd}] \;>\; \mathbb{E}[P_\text{1st}]$$
+
+    Kytkentäperiaate (Milgrom–Weber 1982): avoin huutokauppa paljastaa muiden signaaleja
+    tippumishintojen kautta — tieto nostaa tarjoajien arvioita $V$:stä ja siten myyjän tuloa.
+
+    ---
+
+    <a id="liite-a"></a>
+    ## Liite A: 2nd price optimistrategian johtaminen
+
+    **Tasapainoehto.** Ratkaiseva tilanne on marginaalivoitto: tarjoaja on tasapisteessä
+    toiseksi korkeimman kilpailijan kanssa ($Y_1 = s$, missä $Y_1 = \max_{j \neq i} s_j$).
+    Optimaalinen tarjous on $V$:n posterioriodotusarvo tässä tilanteessa:
+
+    $$b^*(s) = \mathbb{E}[V \mid s_i = s,\; Y_1 = s]$$
+
+    **Likelihood $V$:n funktiona.** Tiheys $Y_1 = s$ ehdolla $V$ on järjestysstatistiikan tiheys
+    (yksi kilpailija täsmälleen $s$:ssä, loput $n-2$ alle $s$, kerrottuna $(n-1)$ valintatavalla):
+
+    $$f_{Y_1}(s \mid V) = (n-1)\cdot\frac{\varphi\!\left(\frac{s-V}{\sigma}\right)}{\sigma}\cdot
+    \Phi\!\left(\frac{s-V}{\sigma}\right)^{n-2}$$
+
+    Tasaisella priorilla $p(V) \propto 1$:
+
+    $$f(V \mid s_i=s,\, Y_1=s) \;\propto\;
+    \frac{\varphi\!\left(\frac{s-V}{\sigma}\right)}{\sigma}
+    \cdot \frac{\varphi\!\left(\frac{s-V}{\sigma}\right)}{\sigma}
+    \cdot \Phi\!\left(\frac{s-V}{\sigma}\right)^{n-2}
+    \;\propto\; \varphi\!\left(\frac{s-V}{\sigma}\right)^{\!2} \cdot \Phi\!\left(\frac{s-V}{\sigma}\right)^{n-2}$$
+
+    **Sijoitus $z = (s-V)/\sigma$.** Optimaalinen tarjous on posterioriodotusarvo $V = s - \sigma z$:
+
+    $$b^*(s) = s - \sigma \cdot \underbrace{\frac{\displaystyle\int_{-\infty}^{\infty} z\;\varphi(z)^2\;\Phi(z)^{n-2}\,dz}
+    {\displaystyle\int_{-\infty}^{\infty} \varphi(z)^2\;\Phi(z)^{n-2}\,dz}}_{=\;c(n)}
+    \;=\; s - \sigma\,c(n)$$
+
+    **Analyyttinen ratkaisu $n=3$:**
+
+    *Nimittäjä:* symmetriaargumentilla (sijoitus $z \to -z$):
+    $\int\varphi(z)^2\Phi(z)\,dz = \int\varphi(z)^2\Phi(-z)\,dz$,
+    joten $2\int\varphi(z)^2\Phi(z)\,dz = \int\varphi(z)^2\,dz = \tfrac{1}{2\sqrt{\pi}}$,
+    eli nimittäjä $= \tfrac{1}{4\sqrt{\pi}}$.
+
+    *Osoittaja:* osin integroimalla $\int z\,\varphi(z)^2\,\Phi(z)\,dz = -\tfrac{1}{4\pi\sqrt{3}}$.
+
+    $$c(3) = \frac{1/(4\pi\sqrt{3})}{1/(4\sqrt{\pi})} = \frac{\sqrt{\pi}}{\pi\sqrt{3}} = \frac{1}{\sqrt{3\pi}} \approx 0{,}326$$
+
+    **Yleiselle $n$:lle** integroidaan numeerisesti (`scipy.integrate.quad`).
+
+    ---
+
+    <a id="liite-b"></a>
+    ## Liite B: 1st price optimistrategian johtaminen
+
+    **Siirtymäinvarianssi — lineaarinen tasapaino.** Koska signaalivirheet ovat normaalijakautuneita
+    (tasajakauma on siirtymäinvariantti), symmetrinen BNE on lineaarinen:
+    $b^*(s) = s - \sigma\,d(n)$ jollakin vakiolla $d(n)$, ja $(b^*)'(s) = 1$.
+
+    **Ensimmäisen kertaluvun ehto (FOC).** Symmetrisessä tasapainossa $s_i$:n tulee olla optimaalinen.
+    Marginaalivoittajatilanteessa $Y_1 = s_i = s$:
+
+    $$\bigl(\underbrace{\mathbb{E}[V \mid s_i, Y_1 = s_i]}_{=\;s - \sigma c(n)}
+    \;-\; b^*(s)\bigr)\cdot f_{Y_1|s}(s)
+    \;=\; (b^*)'(s)\cdot P(Y_1 < s \mid s)$$
+
+    **Kilpailijoiden signaalit ovat korreloituneita.** Vaikka kukin $s_j \mid s_i = s$ on
+    marginaalisesti $N(s, 2\sigma^2)$, ne eivät ole riippumattomia — kaikkia yhdistää
+    yhteinen tuntematon $V$. Oikea laskutapa käyttää odotusarvon lakia:
+
+    $$P(Y_1 < s \mid s_i = s)
+    = \mathbb{E}_{V \mid s}\!\left[\Phi\!\left(\tfrac{s-V}{\sigma}\right)^{n-1}\right]
+    = \int_{-\infty}^{\infty} \Phi(z)^{n-1}\,\varphi(z)\,dz = \frac{1}{n}$$
+
+    (sijoitus $u = \Phi(z)$: $\int_0^1 u^{n-1}\,du = 1/n$).
+
+    **Tiheys pistessä $Y_1 = s$ ehdolla $s_i = s$:**
+
+    $$f_{Y_1|s}(s) = \frac{n-1}{\sigma}\int_{-\infty}^{\infty}\Phi(z)^{n-2}\varphi(z)^2\,dz
+    = \frac{\mathbb{E}[Z_{(n:n)}]}{n\sigma}$$
+
+    Viimeisin yhtäsuuruus seuraa identiteetistä $\mathbb{E}[Z_{(n:n)}] = n(n-1)\int\Phi(z)^{n-2}\varphi(z)^2\,dz$,
+    joka johdetaan osin integroimalla.
+
+    **FOC:n ratkaisu.** Sijoitetaan $b^*(s) = s - \sigma d$, $(b^*)' = 1$:
+
+    $$\sigma(d - c(n))\cdot\frac{\mathbb{E}[Z_{(n:n)}]}{n\sigma} = \frac{1}{n}$$
+
+    $$\boxed{d(n) = c(n) + \frac{1}{\mathbb{E}[Z_{(n:n)}]}}$$
+
+    Strateginen alihinnoittelu 1st vs 2nd price on $\sigma/\mathbb{E}[Z_{(n:n)}]$: suurempi kun
+    kilpailijoita on vähän (voittaja tietää olevansa selvästi paremman signaalin haltija),
+    pienempi kun kilpailijoita on paljon.
+
+    ---
+
+    <a id="liite-c"></a>
+    ## Liite C: Englantilaisen tippumishinnan johtaminen
+
+    **Ensimmäinen tippuja ($k=1$).** Tasapaino on $p_1 = s_{(1)}$.
+
+    Osoitetaan, että $\beta(s) = s$ on Nashin tasapaino poikkeama-argumentilla.
+    Jos kaikki pelaavat $\beta(s) = s - \varepsilon$ ($\varepsilon > 0$), pelaaja $i$ voi
+    pelaata $\beta(s) = s - \gamma$ ($\gamma < \varepsilon$) ja tippua myöhemmin — kilpailijat
+    tippuvat ensin, joten pelaaja $i$ voittaa halvemmalla. Kilpajuoksu ylöspäin ei pysähdy
+    ennen $\beta(s) = s$.
+
+    Kun kaikki pelaavat $\beta(s) = s$: pieni poikkeama ylöspäin ($+\delta$) tai alaspäin
+    ($-\gamma$) tuottaa kumpikin $\Delta U < 0$ (lasketaan samoin kuin tasajakaumassa).
+    Ensimmäinen tippumishinta paljastaa $s_{(1)}$.
+
+    **Myöhemmät tippujat ($k \geq 2$).** Tarjoaja $k$ tietää oman signaalinsa $s_{(k)}$ ja on
+    havainnut $k-1$ aiempaa tippumishintaa, jotka paljastavat $s_{(1)}, \ldots, s_{(k-1)}$.
+
+    Normaalijakauman konjugaattiominaisuus: ehdollistaen kaikille $k-1$ paljastuneelle
+    signaalille ja omalle signaalille:
+
+    $$V \mid s_{(1)},\ldots,s_{(k-1)},\, s_{(k)} \;\sim\; N\!\left(\frac{s_{(1)}+\cdots+s_{(k-1)}+s_{(k)}}{k},\; \frac{\sigma^2}{k}\right)$$
+
+    Tasapainoehto: tipu, kun hinta saavuttaa $V$:n posterioriodotusarvon
+    **marginaalivoittotilanteessa** $s_{k+1} = s_{(k)}$ (olet tasapisteessä seuraavan tippujan kanssa):
+
+    $$p_k = \mathbb{E}\!\left[V \;\middle|\; s_{(1)},\ldots,s_{(k-1)},\, s_{(k)},\, s_{k+1} = s_{(k)}\right]$$
+
+    Ehdollistetaan siis $k+1$ signaalille, joista $k-1$ on välillä $(s_{(1)},\ldots,s_{(k-1)})$
+    ja kaksi on arvoltaan $s_{(k)}$ (oma + marginaalinen kilpailija). Normaaliposteriorin odotusarvo:
+
+    $$p_k = \frac{s_{(1)} + \cdots + s_{(k-1)} + 2\,s_{(k)}}{k+1}$$
+
+    **Toiseksi viimeinen tippuja ($k = n-1$)** määrää hinnan.
+    Kaikki $n-2$ matalampaa signaalia ovat jo paljastuneet:
+
+    $$P = p_{n-1} = \frac{s_{(1)} + \cdots + s_{(n-2)} + 2\,s_{(n-1)}}{n} \qquad \checkmark$$
+
+    **Odotetun hinnan johtaminen.** Koska $s_{(k)} = V + \sigma Z_{(k:n)}$:
+
+    $$\mathbb{E}[P_\text{eng}] = V + \frac{\sigma}{n}\!\left(\sum_{k=1}^{n-2}\mathbb{E}[Z_{(k:n)}] + 2\,\mathbb{E}[Z_{(n-1:n)}]\right)$$
+
+    Käyttäen $\sum_{k=1}^n \mathbb{E}[Z_{(k:n)}] = 0$, eli $\sum_{k=1}^{n-2}\mathbb{E}[Z_{(k:n)}] = -\mathbb{E}[Z_{(n-1:n)}] - \mathbb{E}[Z_{(n:n)}]$:
+
+    $$\mathbb{E}[P_\text{eng}] = V + \frac{\sigma}{n}\!\left(-\mathbb{E}[Z_{(n-1:n)}] - \mathbb{E}[Z_{(n:n)}] + 2\,\mathbb{E}[Z_{(n-1:n)}]\right)
+    = V - \frac{\sigma\!\left(\mathbb{E}[Z_{(n:n)}] - \mathbb{E}[Z_{(n-1:n)}]\right)}{n} \qquad \checkmark$$
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    ## 3. Suljettu second-price huutokauppa
-
-    ### Tasapainostrategia
-
-    Symmetrisessä BNE:ssä tarjoaja $i$ signaalilla $s$ tarjoaa:
-    $$b^*(s) = \mathbb{E}[V \mid s_i = s,\; Y_1 = s]$$
-
-    missä $Y_1 = \max_{j \neq i}(s_j)$. Ehto $Y_1 = s$ on "marginaalivoittajan ehto":
-    optimaalinen tarjous on se, joka tekee tarjoajan välinpitämättömäksi voittamisen ja
-    häviämisen välillä.
-
-    ### Odotusarvon laskeminen: V:n posteriori
-
-    Optimaalinen tarjous on $V$:n odotusarvo ehdolla "tarjouksellani on väliä" —
-    eli tilanteessa jossa oma signaali on korkein ja toiseksi korkein signaali on
-    täsmälleen sama kuin omani. Tässä tilanteessa:
-
-    - **Oma signaali** $= s$: tiheys $\varphi\!\left(\tfrac{s-V}{\sigma}\right)/\sigma$
-    - **Toiseksi korkein kilpailijan signaali** $= s$: tiheys $\varphi\!\left(\tfrac{s-V}{\sigma}\right)/\sigma$
-    - **Loput $n-2$ kilpailijan signaalia** $< s$: todennäköisyys $\Phi\!\left(\tfrac{s-V}{\sigma}\right)^{n-2}$ kullekin
-
-    Likelihood kokonaisuudessaan (tasainen priori $V$:lle):
-    $$f(V \mid s_i=s,\; Y_1=s) \;\propto\;
-    \varphi\!\left(\tfrac{s-V}{\sigma}\right)^{\!2} \cdot \Phi\!\left(\tfrac{s-V}{\sigma}\right)^{n-2}$$
-
-    Posterioriodotusarvo — eli optimaalinen tarjous:
-    $$b^*(s) = \frac{\displaystyle\int_{-\infty}^{\infty} V \cdot
-    \varphi\!\left(\tfrac{s-V}{\sigma}\right)^{\!2} \cdot \Phi\!\left(\tfrac{s-V}{\sigma}\right)^{n-2} dV}
-    {\displaystyle\int_{-\infty}^{\infty}
-    \varphi\!\left(\tfrac{s-V}{\sigma}\right)^{\!2} \cdot \Phi\!\left(\tfrac{s-V}{\sigma}\right)^{n-2} dV}$$
-
-    ### Analyyttinen ratkaisu $n = 3$
-
-    Sijoitus $z = (s - V)/\sigma$, $V = s - \sigma z$, $dV = -\sigma\,dz$:
-
-    $$b^*(s) = s - \sigma \cdot \frac{\displaystyle\int_{-\infty}^{\infty} z\;\varphi(z)^2\;\Phi(z)\,dz}
-    {\displaystyle\int_{-\infty}^{\infty} \varphi(z)^2\;\Phi(z)\,dz}$$
-
-    **Nimittäjä:** symmetriaargumentilla $\int\varphi^2\Phi\,dz = \int\varphi^2\Phi(-z)\,dz$,
-    joten $2\int\varphi(z)^2\Phi(z)\,dz = \int\varphi(z)^2\,dz = \tfrac{1}{2\sqrt{\pi}}$,
-    eli nimittäjä $= \tfrac{1}{4\sqrt{\pi}}$.
-
-    **Osoittaja:** osamäärällä $u = \Phi(z)$, $du = \varphi(z)\,dz$:
-    $$\int z\,\varphi(z)^2\,\Phi(z)\,dz \;\overset{\text{osin integr.}}{=}\;
-    -\frac{1}{4\pi\sqrt{3}}$$
-
-    Niinpä:
-    $$c(3) = \frac{1/(4\pi\sqrt{3})}{1/(4\sqrt{\pi})} = \frac{\sqrt{\pi}}{\pi\sqrt{3}} = \frac{1}{\sqrt{3\pi}} \approx 0{,}326$$
-
-    $$\boxed{b^*(s) = s - \frac{\sigma}{\sqrt{3\pi}}} \qquad (n = 3)$$
-
-    ### Numeerinen integrointi $n > 3$
-
-    Kun $n > 3$, integrandi sisältää $\Phi(z)^{n-2}$ joka ei integroidu vastaavasti
-    analyyttisesti. Ratkaisu lasketaan numeerisesti Gaussin kvadratuurilla
-    (`scipy.integrate.quad`):
-
-    $$c(n) = -\frac{\displaystyle\int z\;\varphi(z)^2\;\Phi(-z)^{n-2}\,dz}
-    {\displaystyle\int \varphi(z)^2\;\Phi(-z)^{n-2}\,dz}$$
-
-    (merkintä vaihdettu: $\Phi(z) \to \Phi(-z)$ sijoituksen $z \to -z$ jälkeen)
+    mo.md("""
+    ---
+    ## 7. Simulaatio
     """)
     return
+
+
+@app.cell
+def _(mo):
+    slider_V     = mo.ui.slider(10, 200, value=100, step=10, label="Todellinen arvo V")
+    slider_n     = mo.ui.slider(2, 20, value=5, step=1, label="Tarjoajien määrä n")
+    slider_sigma = mo.ui.slider(1, 50, value=20, step=1, label="Signaalivirhe σ")
+    slider_N     = mo.ui.slider(1000, 50000, value=10000, step=1000, label="Simulaatiokerrat N")
+    mo.vstack([slider_V, slider_n, slider_sigma, slider_N])
+    return slider_N, slider_V, slider_n, slider_sigma
 
 
 @app.cell
@@ -152,157 +379,6 @@ def _():
     return bid_adjustment, bid_adjustment_1st
 
 
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    ## 3.5. Suljettu first-price huutokauppa
-
-    ### Mikä on tasapainoehto?
-
-    Suljetussa ensimmäisessä huutokaupassa voittaja **maksaa oman tarjouksensa**.
-    Tarjoajalla on siis kaksi vastakkaista kannustinta:
-
-    - Korkea tarjous $\uparrow$ → voittaa useammin
-    - Korkea tarjous $\uparrow$ → maksaa enemmän jos voittaa
-
-    Symmetrisessä tasapainossa jokainen tarjoaa $b^*(s_i)$ jostakin kasvavasta
-    funktiosta $b^*$. Tarjoajan $i$ odotettu voitto tarjouksella $b$ on:
-    $$\pi(b,\,s_i) = \underbrace{E[V \mid s_i]}_{\text{oma käsitys}} -\; b)
-    \;\cdot\; \underbrace{P(\text{voitan} \mid s_i,\, \text{tarjous}=b)}_{\text{voittotodennäköisyys}}$$
-
-    Voitto tapahtuu kun oma tarjous on korkein, ts. $b > b^*(s_j)$ kaikille $j \neq i$.
-    Koska $b^*$ on kasvava, tämä vastaa ehtoa $s_j < (b^*)^{-1}(b)$ kaikille.
-
-    Tasapainoehdoksi (FOC marginaalivoittajalla $s_i = Y_1$) saadaan:
-    $$\bigl(\underbrace{E[V \mid s_i, Y_1 = s_i]}_{\text{2nd price -tarjous }= s_i - \sigma c(n)}
-    \;-\; b^*(s_i)\bigr)\cdot f_{Y_1|s_i}(s_i)
-    \;=\; (b^*)'(s_i)\cdot P(Y_1 < s_i \mid s_i)$$
-
-    ### Siirtymäinvarianssi — lineaarinen tasapaino
-
-    Koska signaalivirheet ovat normaalijakautuneita (siirtymäinvariantti), tasapaino
-    on lineaarinen: $b^*(s) = s - \sigma\,d(n)$ jollakin vakiolla $d(n)$.
-    Tällöin $(b^*)'(s) = 1$.
-
-    ### Kilpailijoiden signaalit ovat korreloituneita
-
-    **Avainhuomio:** vaikka kukin $s_j \mid s_i = s$ on marginaalisesti $N(s, 2\sigma^2)$,
-    ne eivät ole riippumattomia — kaikkia kilpailijoiden signaaleja yhdistää yhteinen
-    tuntematon $V$. Oikea laskutapa käyttää odotusarvon lakia:
-
-    $$P(Y_1 < s \mid s_i = s)
-    = E_{V \mid s}\!\left[\Phi\!\left(\tfrac{s-V}{\sigma}\right)^{n-1}\right]
-    = \int_{-\infty}^{\infty} \Phi(z)^{n-1}\,\varphi(z)\,dz
-    = \frac{1}{n}$$
-
-    (integraalin arvo on $[\Phi(z)^n/n]_{-\infty}^{\infty} = 1/n$). Vastaavalla
-    laskulla tiheys pistessä $s$:
-
-    $$f_{Y_1|s}(s) = \frac{n-1}{\sigma}\int_{-\infty}^{\infty}\Phi(z)^{n-2}\varphi(z)^2\,dz$$
-
-    Integraalille löytyy kätevä identiteetti: osin integroimalla $E[Z_{(n:n)}]$:
-    $$E[Z_{(n:n)}] = n(n-1)\int_{-\infty}^{\infty}\Phi(z)^{n-2}\varphi(z)^2\,dz
-    \;\implies\; f_{Y_1|s}(s) = \frac{E[Z_{(n:n)}]}{n\sigma}$$
-
-    ### Lopputulos
-
-    Sijoittamalla FOC:hen ($b^*=s-\sigma d$, $(b^*)'=1$,
-    $E[V\mid s,Y_1=s] = s-\sigma c(n)$):
-
-    $$\sigma(d - c(n))\cdot\frac{E[Z_{(n:n)}]}{n\sigma} = \frac{1}{n}$$
-
-    $$\boxed{d(n) = c(n) + \frac{1}{E[Z_{(n:n)}]}}$$
-
-    Strateginen alihinnoittelu 1st vs 2nd price on $\sigma/E[Z_{(n:n)}]$: suurempi kun
-    kilpailijoita on vähän (voittaja tietää olevansa paljon paremman signaalin haltija),
-    pienempi kun kilpailijoita on paljon. $E[Z_{(n:n)}]$ lasketaan numeerisesti.
-
-    ---
-
-    ## 4. Englantilainen huutokauppa
-
-    ### Tippumisstrategia
-
-    **Ensimmäinen tippuja:** tippuu hinnalla $p_1 = s_{(1)}$ (Nashin tasapaino — poikkeamat
-    kumpaankin suuntaan tuottavat $\Delta U < 0$).
-
-    **Toiseksi viimeinen tippuja** (se joka määrää hinnan)**:** Kun jäljellä on kaksi
-    pelaajaa, on ratkaistava heidän keskinäinen tasapainonsa. Pelaaja $k$ ehdollistaa
-    marginaalitapaukseen "tiputaan samassa hinnassa" eli $s_{k+1} = s_k$. Tällöin hän
-    konditionoi aiempiin paljastuneisiin signaaleihin $T = s_{(1)}+\cdots+s_{(k-1)}$
-    ($m = k-1$ kappaletta) sekä kahteen omaan signaaliinsa:
-
-    $$p_k = \mathbb{E}[V \mid s_{(1)},\ldots,s_{(k-1)},\; s_{(k)},\; s_{k+1} = s_{(k)}]
-    = \frac{T + 2\,s_{(k)}}{m + 2}$$
-
-    Hinnan kannalta ratkaiseva on toiseksi viimeisen tippujan ($k = n-1$) päätös.
-    Hänen pudotessaan kaikki $n-2$ matalampaa signaalia ovat jo paljastuneet
-    ($T = s_{(1)}+\cdots+s_{(n-2)}$, $m = n-2$):
-
-    $$P = p_{n-1} = \frac{s_{(1)} + \cdots + s_{(n-2)} + 2\,s_{(n-1)}}{n}$$
-
-    **Ero tasajakaumaan:** Tasajakaumassa $p_k = (s_{(1)} + s_{(k)})/2$ — vain alin signaali
-    ja oma signaali, kerrottuna kahdella. Normaalijakaumassa mukaan tulevat kaikki
-    välisignaalit, koska normaaliposteriori on konjugaatti ja jokainen havainto
-    vaikuttaa posterioriodotusarvoon.
-
-    **Huomio:** Voittajan maksama hinta on:
-    $$P = V + \frac{\sigma}{n}\!\left(\sum_{k=1}^{n-2}Z_{(k:n)} + 2Z_{(n-1:n)}\right)$$
-    Termi $\sum Z_{(k:n)}$ on signaalien otoskeskivirhe, joka vaihtelee realisaatiosta toiseen.
-    Odotusarvossa $\mathbb{E}[P] < V$, mutta yksittäisissä realisaatioissa $P > V$ on mahdollinen.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    ## 5. Odotetut hinnat ja ostajan utility
-
-    Merkitään $Z_{(k:n)}$ = standardinormaalijakauman $k$:s järjestysstatistiikka
-    ($n$ i.i.d. $N(0,1)$). Symmetrian nojalla $Z_{(1:n)} \overset{d}{=} -Z_{(n:n)}$.
-
-    Koska $s_{(k)} = V + \sigma Z_{(k:n)}$:
-
-    **Suljettu 1st price:** Voittaja (korkein signaali) maksaa $b^*(s_{(n:n)}) = s_{(n:n)} - \sigma d(n)$:
-    $$\mathbb{E}[U_{1st}] = \sigma\!\left(d(n) - \mathbb{E}[Z_{(n:n)}]\right)$$
-
-    **Suljettu 2nd price:**
-    $$\mathbb{E}[U_{2nd}] = \sigma\!\left(c(n) - \mathbb{E}[Z_{(n-1:n)}]\right)$$
-
-    **Englantilainen:** Voittaja maksaa $P = (s_{(1)}+\cdots+s_{(n-2)}+2s_{(n-1)})/n$.
-    Kaikkien $n$ järjestysstatistiikkojen summa on nolla odotusarvossa, joten
-    $\mathbb{E}[Z_{(1:n)}]+\cdots+\mathbb{E}[Z_{(n-2:n)}] = -\mathbb{E}[Z_{(n:n)}]-\mathbb{E}[Z_{(n-1:n)}]$:
-    $$\mathbb{E}[P_{eng}] = V - \frac{\sigma\!\left(\mathbb{E}[Z_{(n:n)}] - \mathbb{E}[Z_{(n-1:n)}]\right)}{n}$$
-    $$\mathbb{E}[U_{eng}] = \frac{\sigma\!\left(\mathbb{E}[Z_{(n:n)}] - \mathbb{E}[Z_{(n-1:n)}]\right)}{n} > 0$$
-
-    **Kytkentäperiaate (Milgrom–Weber 1982):** Huutokauppamuoto, joka paljastaa enemmän
-    informaatiota voittajalle, tuottaa myyjälle enemmän.
-    $$\mathbb{E}[P_{eng}] > \mathbb{E}[P_{2nd}] > \mathbb{E}[P_{1st}]$$
-    Järjestysstatistiikkojen odotusarvot lasketaan numeerisesti simulaatiossa.
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ---
-    ## 6. Simulaatio
-    """)
-    return
-
-
-@app.cell
-def _(mo):
-    slider_V     = mo.ui.slider(10, 200, value=100, step=10, label="Todellinen arvo V")
-    slider_n     = mo.ui.slider(2, 20, value=5, step=1, label="Tarjoajien määrä n")
-    slider_sigma = mo.ui.slider(1, 50, value=20, step=1, label="Signaalivirhe σ")
-    slider_N     = mo.ui.slider(1000, 50000, value=10000, step=1000, label="Simulaatiokerrat N")
-    mo.vstack([slider_V, slider_n, slider_sigma, slider_N])
-    return slider_N, slider_V, slider_n, slider_sigma
-
-
 @app.cell
 def _(bid_adjustment, bid_adjustment_1st, np, slider_N, slider_V, slider_n, slider_sigma):
     V     = slider_V.value
@@ -328,7 +404,7 @@ def _(bid_adjustment, bid_adjustment_1st, np, slider_N, slider_V, slider_n, slid
     utility_naive = V - price_naive
 
     dn          = bid_adjustment_1st(n)
-    price_1st   = sorted_s[:, -1] - sigma * dn   # winner pays own bid
+    price_1st   = sorted_s[:, -1] - sigma * dn
     utility_1st = V - price_1st
 
     # Järjestysstatistiikkojen odotusarvot (Monte Carlo, V kumoutuu)
@@ -395,14 +471,14 @@ def _(
     $\\mathbb{{E}}[Z_{{(n-1:n)}}] = {Ez_n1:.4f}$,
     $\\mathbb{{E}}[Z_{{(n:n)}}] = {Ez_n:.4f}$
 
-    | | Naiivi | 1st rat. | 2nd rat. | Eng. rat. |
+    | | Naiivi | 2nd rat. | 1st rat. | Eng. rat. |
     |---|---|---|---|---|
-    | **E[utility] — kaava** | — | {eu_1st_formula:.3f} | {eu_2nd_formula:.3f} | {eu_eng_formula:.3f} |
-    | **E[utility] — simulaatio** | {np.mean(utility_naive):.3f} | {np.mean(utility_1st):.3f} | {np.mean(utility_2nd):.3f} | {np.mean(utility_eng):.3f} |
-    | **P(utility < 0)** | {wc_naive:.1f}% | {wc_1st:.1f}% | {wc_2nd:.1f}% | {wc_eng:.1f}% |
-    | **E[hinta myyjälle]** | {np.mean(price_naive):.2f} | {np.mean(price_1st):.2f} | {np.mean(price_2nd):.2f} | {np.mean(price_eng):.2f} |
+    | **E[utility] — kaava** | — | {eu_2nd_formula:.3f} | {eu_1st_formula:.3f} | {eu_eng_formula:.3f} |
+    | **E[utility] — simulaatio** | {np.mean(utility_naive):.3f} | {np.mean(utility_2nd):.3f} | {np.mean(utility_1st):.3f} | {np.mean(utility_eng):.3f} |
+    | **P(utility < 0)** | {wc_naive:.1f}% | {wc_2nd:.1f}% | {wc_1st:.1f}% | {wc_eng:.1f}% |
+    | **E[hinta myyjälle]** | {np.mean(price_naive):.2f} | {np.mean(price_2nd):.2f} | {np.mean(price_1st):.2f} | {np.mean(price_eng):.2f} |
 
-    Kytkentäperiaate: $\\mathbb{{E}}[P_{{eng}}] > \\mathbb{{E}}[P_{{2nd}}] > \\mathbb{{E}}[P_{{1st}}]$
+    Linkage Principle: 1st ({np.mean(price_1st):.2f}) < 2nd ({np.mean(price_2nd):.2f}) < Eng. ({np.mean(price_eng):.2f})
     """)
     return
 
@@ -413,11 +489,11 @@ def _(V, n, np, plt, price_1st, price_2nd, price_eng, price_naive, sigma):
     all_p = np.concatenate([price_naive, price_1st, price_2nd, price_eng])
     bins  = np.linspace(all_p.min() - 1, all_p.max() + 1, 60)
     ax1.hist(price_naive, bins=bins, alpha=0.35, color="#e07b39", label="Naiivi")
-    ax1.hist(price_1st,   bins=bins, alpha=0.35, color="#9b59b6", label="1st rat.")
-    ax1.hist(price_2nd,   bins=bins, alpha=0.35, color="#4c8fd6", label="2nd rat.")
+    ax1.hist(price_2nd,   bins=bins, alpha=0.35, color="#4c8fd6", label="Suljettu 2nd rat.")
+    ax1.hist(price_1st,   bins=bins, alpha=0.35, color="#9b59b6", label="Suljettu 1st rat.")
     ax1.hist(price_eng,   bins=bins, alpha=0.35, color="#3daa6a", label="Eng. rat.")
     ax1.axvline(V, color="black", linewidth=1.5, linestyle="--", label=f"V = {V}")
-    for p_arr, col in [(price_naive, "#e07b39"), (price_1st, "#9b59b6"), (price_2nd, "#4c8fd6"), (price_eng, "#3daa6a")]:
+    for p_arr, col in [(price_naive, "#e07b39"), (price_2nd, "#4c8fd6"), (price_1st, "#9b59b6"), (price_eng, "#3daa6a")]:
         ax1.axvline(np.mean(p_arr), color=col, linewidth=2)
     ax1.set_xlabel("Voittajan maksama hinta")
     ax1.set_ylabel("Frekvenssi")
@@ -444,7 +520,7 @@ def _(bid_adjustment, n, np, plt):
     for k, ni in enumerate(ns):
         z_k  = np.sort(np.random.default_rng(seed=k).standard_normal(size=(5000, ni)), axis=1)
         cn_k = cn_ns[k]
-        dn_k = cn_k + 1.0 / np.mean(z_k[:, -1])   # d = c + 1/E[Z_(n:n)]
+        dn_k = cn_k + 1.0 / np.mean(z_k[:, -1])
         eu_1st_ns[k]   = dn_k - np.mean(z_k[:, -1])
         eu_2nd_ns[k]   = cn_k - np.mean(z_k[:, -2])
         eu_eng_ns[k]   = (np.mean(z_k[:, -1]) - np.mean(z_k[:, -2])) / ni
@@ -456,8 +532,8 @@ def _(bid_adjustment, n, np, plt):
     fig2, axes = plt.subplots(1, 2, figsize=(12, 4))
 
     ax_eu = axes[0]
-    ax_eu.plot(ns, eu_1st_ns,  color="#9b59b6", linewidth=2, label="1st rat.")
-    ax_eu.plot(ns, eu_2nd_ns,  color="#4c8fd6", linewidth=2, label="2nd rat.")
+    ax_eu.plot(ns, eu_2nd_ns,  color="#4c8fd6", linewidth=2, label="Suljettu 2nd rat.")
+    ax_eu.plot(ns, eu_1st_ns,  color="#9b59b6", linewidth=2, label="Suljettu 1st rat.")
     ax_eu.plot(ns, eu_eng_ns,  color="#3daa6a", linewidth=2, linestyle="--", label="Eng. rat.")
     ax_eu.axhline(0, color="black", linewidth=1, linestyle="--")
     ax_eu.axvline(n, color="gray", linewidth=1, linestyle=":", alpha=0.8)
@@ -468,8 +544,8 @@ def _(bid_adjustment, n, np, plt):
 
     ax_wc = axes[1]
     ax_wc.plot(ns, wc_naive_ns, color="#e07b39", linewidth=2, label="Naiivi")
-    ax_wc.plot(ns, wc_1st_ns,   color="#9b59b6", linewidth=2, label="1st rat.")
-    ax_wc.plot(ns, wc_2nd_ns,   color="#4c8fd6", linewidth=2, label="2nd rat.")
+    ax_wc.plot(ns, wc_2nd_ns,   color="#4c8fd6", linewidth=2, label="Suljettu 2nd rat.")
+    ax_wc.plot(ns, wc_1st_ns,   color="#9b59b6", linewidth=2, label="Suljettu 1st rat.")
     ax_wc.plot(ns, wc_eng_ns,   color="#3daa6a", linewidth=2, linestyle="--", label="Eng. rat.")
     ax_wc.axhline(50, color="black", linewidth=1, linestyle="--", alpha=0.5)
     ax_wc.axvline(n, color="gray", linewidth=1, linestyle=":", alpha=0.8, label=f"Nykyinen n={n}")
