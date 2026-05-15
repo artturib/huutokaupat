@@ -122,23 +122,29 @@ def _(mo):
     **Ensimmäinen tippuja:** tippuu hinnalla $p_1 = s_{(1)}$ (Nashin tasapaino — poikkeamat
     kumpaankin suuntaan tuottavat $\Delta U < 0$).
 
-    **Myöhemmät tippujat ($k \geq 2$):** jokainen aiempi poistuja paljastaa signaalinsa
-    tippumishinnan kautta. Tarjoaja $k$ tietää siis $s_{(1)}, s_{(2)}, \ldots, s_{(k-1)}$
-    sekä oman signaalinsa $s_{(k)}$ — yhteensä $k$ signaalia. Normaaliposteriori:
+    **Toiseksi viimeinen tippuja** (se joka määrää hinnan)**:** Kun jäljellä on kaksi
+    pelaajaa, on ratkaistava heidän keskinäinen tasapainonsa. Pelaaja $k$ ehdollistaa
+    marginaalitapaukseen "tiputaan samassa hinnassa" eli $s_{k+1} = s_k$. Tällöin hän
+    konditionoi aiempiin paljastuneisiin signaaleihin $T = s_{(1)}+\cdots+s_{(k-1)}$
+    ($m = k-1$ kappaletta) sekä kahteen omaan signaaliinsa:
 
-    $$V \mid s_{(1)}, \ldots, s_{(k)} \;\sim\; N\!\left(\bar{s}_k,\; \frac{\sigma^2}{k}\right), \qquad
-    \bar{s}_k = \frac{s_{(1)} + \cdots + s_{(k)}}{k}$$
+    $$p_k = \mathbb{E}[V \mid s_{(1)},\ldots,s_{(k-1)},\; s_{(k)},\; s_{k+1} = s_{(k)}]
+    = \frac{T + 2\,s_{(k)}}{m + 2}$$
 
-    Tasapainoehto — tipu, kun hinta saavuttaa posterioriodotusarvon:
-    $$p_k = \bar{s}_k = \frac{s_{(1)} + \cdots + s_{(k)}}{k}$$
+    Hinnan kannalta ratkaiseva on toiseksi viimeisen tippujan ($k = n-1$) päätös.
+    Hänen pudotessaan kaikki $n-2$ matalampaa signaalia ovat jo paljastuneet
+    ($T = s_{(1)}+\cdots+s_{(n-2)}$, $m = n-2$):
 
-    **Ero tasajakaumaan:** Tasajakaumassa vain ääriarvot $s_{(1)}$ ja $s_{(k)}$ vaikuttavat
-    posterioriin, joten $p_k = (s_{(1)} + s_{(k)})/2$. Normaalijakaumassa jokainen
-    väliarvo on informatiivinen (konjugaattiominaisuus), joten tippumishinta on kaikkien
-    tähän mennessä havaittujen signaalien keskiarvo.
+    $$P = p_{n-1} = \frac{s_{(1)} + \cdots + s_{(n-2)} + 2\,s_{(n-1)}}{n}$$
 
-    Voittaja (korkein signaali $s_{(n)}$) maksaa viimeisen tippujan hinnan:
-    $$P = p_{n-1} = \frac{s_{(1)} + s_{(2)} + \cdots + s_{(n-1)}}{n-1}$$
+    **Ero tasajakaumaan:** Tasajakaumassa $p_k = (s_{(1)} + s_{(k)})/2$ — vain alin signaali
+    ja oma signaali, kerrottuna kahdella. Normaalijakaumassa mukaan tulevat kaikki
+    välisignaalit, koska normaaliposteriori on konjugaatti ja jokainen havainto
+    vaikuttaa posterioriodotusarvoon.
+
+    **Kaunis sivutulos:** voittaja maksaa *aina* alle $V$:n:
+    $$P = V + \frac{\sigma(Z_{(n-1:n)} - Z_{(n:n)})}{n} < V \quad \text{aina}$$
+    koska $Z_{(n-1:n)} < Z_{(n:n)}$ aina. Winner's curse -todennäköisyys on täsmälleen 0.
     """)
     return
 
@@ -156,11 +162,11 @@ def _(mo):
     **Suljettu 2nd price:**
     $$\mathbb{E}[U_{2nd}] = \sigma\!\left(c(n) - \mathbb{E}[Z_{(n-1:n)}]\right)$$
 
-    **Englantilainen:** Voittaja maksaa $P = (s_{(1)}+\cdots+s_{(n-1)})/(n-1)$.
-    Kaikkien $n$ järjestysstatistiikkojen summan odotusarvo on nolla
-    ($\mathbb{E}[\sum_k Z_{(k:n)}] = n\mathbb{E}[Z] = 0$), joten:
-    $$\mathbb{E}[P_{eng}] = V - \frac{\sigma\,\mathbb{E}[Z_{(n:n)}]}{n-1}$$
-    $$\mathbb{E}[U_{eng}] = \frac{\sigma\,\mathbb{E}[Z_{(n:n)}]}{n-1} > 0$$
+    **Englantilainen:** Voittaja maksaa $P = (s_{(1)}+\cdots+s_{(n-2)}+2s_{(n-1)})/n$.
+    Kaikkien $n$ järjestysstatistiikkojen summa on nolla odotusarvossa, joten
+    $\mathbb{E}[Z_{(1:n)}]+\cdots+\mathbb{E}[Z_{(n-2:n)}] = -\mathbb{E}[Z_{(n:n)}]-\mathbb{E}[Z_{(n-1:n)}]$:
+    $$\mathbb{E}[P_{eng}] = V - \frac{\sigma\!\left(\mathbb{E}[Z_{(n:n)}] - \mathbb{E}[Z_{(n-1:n)}]\right)}{n}$$
+    $$\mathbb{E}[U_{eng}] = \frac{\sigma\!\left(\mathbb{E}[Z_{(n:n)}] - \mathbb{E}[Z_{(n-1:n)}]\right)}{n} > 0$$
 
     Englantilainen tuottaa myyjälle enemmän kuin suljettu second-price (linkage-periaate).
     Järjestysstatistiikkojen odotusarvot lasketaan numeerisesti simulaatiossa.
@@ -170,7 +176,10 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md("""---\n## 6. Simulaatio""")
+    mo.md("""
+    ---
+    ## 6. Simulaatio
+    """)
     return
 
 
@@ -201,7 +210,8 @@ def _(bid_adjustment, np, slider_N, slider_V, slider_n, slider_sigma):
     price_2nd = np.sort(bids_2nd, axis=1)[:, -2]
     utility_2nd = V - price_2nd
 
-    price_eng   = np.mean(sorted_s[:, :-1], axis=1)   # keskiarvo n-1 pienimmästä
+    # (s_(1)+...+s_(n-2) + 2*s_(n-1)) / n
+    price_eng   = (np.sum(sorted_s[:, :-1], axis=1) + sorted_s[:, -2]) / n
     utility_eng = V - price_eng
 
     price_naive   = sorted_s[:, -2]
@@ -213,23 +223,43 @@ def _(bid_adjustment, np, slider_N, slider_V, slider_n, slider_sigma):
     Ez_n  = float(np.mean(z_mc[:, -1]))
 
     eu_2nd_formula = sigma * (cn - Ez_n1)
-    eu_eng_formula = sigma * Ez_n / (n - 1)
-
+    eu_eng_formula = sigma * (Ez_n - Ez_n1) / n
     return (
-        V, n, sigma, N_sim, cn, Ez_n1, Ez_n,
-        price_2nd, price_eng, price_naive,
-        utility_2nd, utility_eng, utility_naive,
-        eu_2nd_formula, eu_eng_formula,
-        sorted_s, bids_2nd, signals,
+        Ez_n,
+        Ez_n1,
+        V,
+        cn,
+        eu_2nd_formula,
+        eu_eng_formula,
+        n,
+        price_2nd,
+        price_eng,
+        price_naive,
+        sigma,
+        utility_2nd,
+        utility_eng,
+        utility_naive,
     )
 
 
 @app.cell(hide_code=True)
 def _(
-    V, cn, eu_2nd_formula, eu_eng_formula, Ez_n1, Ez_n,
-    mo, n, np, sigma,
-    price_2nd, price_eng, price_naive,
-    utility_2nd, utility_eng, utility_naive,
+    Ez_n,
+    Ez_n1,
+    V,
+    cn,
+    eu_2nd_formula,
+    eu_eng_formula,
+    mo,
+    n,
+    np,
+    price_2nd,
+    price_eng,
+    price_naive,
+    sigma,
+    utility_2nd,
+    utility_eng,
+    utility_naive,
 ):
     wc_naive = np.mean(utility_naive < 0) * 100
     wc_2nd   = np.mean(utility_2nd   < 0) * 100
@@ -286,10 +316,10 @@ def _(bid_adjustment, n, np, plt):
         z_k  = np.sort(np.random.default_rng(seed=k).standard_normal(size=(5000, ni)), axis=1)
         cn_k = cn_ns[k]
         eu_2nd_ns[k]   = cn_k - np.mean(z_k[:, -2])
-        eu_eng_ns[k]   = np.mean(z_k[:, -1]) / (ni - 1)
+        eu_eng_ns[k]   = (np.mean(z_k[:, -1]) - np.mean(z_k[:, -2])) / ni
         wc_naive_ns[k] = np.mean(z_k[:, -2] > 0) * 100
         wc_2nd_ns[k]   = np.mean(z_k[:, -2] > cn_k) * 100
-        wc_eng_ns[k]   = np.mean(np.sum(z_k[:, :-1], axis=1) > 0) * 100
+        wc_eng_ns[k]   = 0.0   # aina 0: Z_(n-1:n) < Z_(n:n) aina
 
     fig2, axes = plt.subplots(1, 2, figsize=(12, 4))
 
@@ -325,6 +355,7 @@ def _():
     import marimo as mo
     import numpy as np
     import matplotlib.pyplot as plt
+
     return mo, np, plt
 
 
