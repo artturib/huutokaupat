@@ -69,25 +69,56 @@ def _(mo):
     optimaalinen tarjous on se, joka tekee tarjoajan välinpitämättömäksi voittamisen ja
     häviämisen välillä.
 
-    ### Miksi ei suljettua muotoa?
+    ### Odotusarvon laskeminen: V:n posteriori
 
-    Tasaisella priorilla ja normaalisignaaleilla:
-    $$f(V \mid s_i=s,\; Y_1=s) \;\propto\; \varphi\!\left(\tfrac{s-V}{\sigma}\right)^2
-    \cdot \Phi\!\left(\tfrac{s-V}{\sigma}\right)^{n-2}$$
+    Optimaalinen tarjous on $V$:n odotusarvo ehdolla "tarjouksellani on väliä" —
+    eli tilanteessa jossa oma signaali on korkein ja toiseksi korkein signaali on
+    täsmälleen sama kuin omani. Tässä tilanteessa:
 
-    Tasajakaumassa vastaava posteriori oli tasainen $[s_k-e,\; s_{(1)}+e]$:llä, josta
-    saatiin suljettu muoto. Normaalijakaumassa tiheys ei yksinkertaistu polynomiksi,
-    joten integrointi tehdään numeerisesti.
+    - **Oma signaali** $= s$: tiheys $\varphi\!\left(\tfrac{s-V}{\sigma}\right)/\sigma$
+    - **Toiseksi korkein kilpailijan signaali** $= s$: tiheys $\varphi\!\left(\tfrac{s-V}{\sigma}\right)/\sigma$
+    - **Loput $n-2$ kilpailijan signaalia** $< s$: todennäköisyys $\Phi\!\left(\tfrac{s-V}{\sigma}\right)^{n-2}$ kullekin
 
-    Sijoituksella $z = (V - s)/\sigma$:
+    Likelihood kokonaisuudessaan (tasainen priori $V$:lle):
+    $$f(V \mid s_i=s,\; Y_1=s) \;\propto\;
+    \varphi\!\left(\tfrac{s-V}{\sigma}\right)^{\!2} \cdot \Phi\!\left(\tfrac{s-V}{\sigma}\right)^{n-2}$$
 
-    $$b^*(s) = s - \sigma \cdot c(n), \qquad
-    c(n) = -\frac{\displaystyle\int_{-\infty}^{\infty} z\;\varphi(z)^2\;\Phi(-z)^{n-2}\,dz}
-                  {\displaystyle\int_{-\infty}^{\infty} \varphi(z)^2\;\Phi(-z)^{n-2}\,dz}
-    \;\geq\; 0$$
+    Posterioriodotusarvo — eli optimaalinen tarjous:
+    $$b^*(s) = \frac{\displaystyle\int_{-\infty}^{\infty} V \cdot
+    \varphi\!\left(\tfrac{s-V}{\sigma}\right)^{\!2} \cdot \Phi\!\left(\tfrac{s-V}{\sigma}\right)^{n-2} dV}
+    {\displaystyle\int_{-\infty}^{\infty}
+    \varphi\!\left(\tfrac{s-V}{\sigma}\right)^{\!2} \cdot \Phi\!\left(\tfrac{s-V}{\sigma}\right)^{n-2} dV}$$
 
-    Erityisesti $c(2) = 0$ symmetriasta ($n=2$:lla $b^*(s) = s$), ja $c(n)$ kasvaa $n$:n
-    kasvaessa.
+    ### Analyyttinen ratkaisu $n = 3$
+
+    Sijoitus $z = (s - V)/\sigma$, $V = s - \sigma z$, $dV = -\sigma\,dz$:
+
+    $$b^*(s) = s - \sigma \cdot \frac{\displaystyle\int_{-\infty}^{\infty} z\;\varphi(z)^2\;\Phi(z)\,dz}
+    {\displaystyle\int_{-\infty}^{\infty} \varphi(z)^2\;\Phi(z)\,dz}$$
+
+    **Nimittäjä:** symmetriaargumentilla $\int\varphi^2\Phi\,dz = \int\varphi^2\Phi(-z)\,dz$,
+    joten $2\int\varphi(z)^2\Phi(z)\,dz = \int\varphi(z)^2\,dz = \tfrac{1}{2\sqrt{\pi}}$,
+    eli nimittäjä $= \tfrac{1}{4\sqrt{\pi}}$.
+
+    **Osoittaja:** osamäärällä $u = \Phi(z)$, $du = \varphi(z)\,dz$:
+    $$\int z\,\varphi(z)^2\,\Phi(z)\,dz \;\overset{\text{osin integr.}}{=}\;
+    -\frac{1}{4\pi\sqrt{3}}$$
+
+    Niinpä:
+    $$c(3) = \frac{1/(4\pi\sqrt{3})}{1/(4\sqrt{\pi})} = \frac{\sqrt{\pi}}{\pi\sqrt{3}} = \frac{1}{\sqrt{3\pi}} \approx 0{,}326$$
+
+    $$\boxed{b^*(s) = s - \frac{\sigma}{\sqrt{3\pi}}} \qquad (n = 3)$$
+
+    ### Numeerinen integrointi $n > 3$
+
+    Kun $n > 3$, integrandi sisältää $\Phi(z)^{n-2}$ joka ei integroidu vastaavasti
+    analyyttisesti. Ratkaisu lasketaan numeerisesti Gaussin kvadratuurilla
+    (`scipy.integrate.quad`):
+
+    $$c(n) = -\frac{\displaystyle\int z\;\varphi(z)^2\;\Phi(-z)^{n-2}\,dz}
+    {\displaystyle\int \varphi(z)^2\;\Phi(-z)^{n-2}\,dz}$$
+
+    (merkintä vaihdettu: $\Phi(z) \to \Phi(-z)$ sijoituksen $z \to -z$ jälkeen)
     """)
     return
 
