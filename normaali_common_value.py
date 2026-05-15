@@ -125,6 +125,7 @@ def _(mo):
 
 @app.cell
 def _():
+    import math as _math
     from scipy import integrate as _sci_int
     from scipy.stats import norm as _sci_norm
 
@@ -140,12 +141,60 @@ def _():
         den, _ = _sci_int.quad(den_fn, -15, 15)
         return -num / den
 
-    return (bid_adjustment,)
+    def bid_adjustment_1st(n_bidders):
+        """d(n) = c(n) + sqrt(pi)/(n-1): winner's curse + strateginen alihinnoittelu"""
+        if n_bidders <= 1:
+            return 0.0
+        return bid_adjustment(n_bidders) + _math.sqrt(_math.pi) / (n_bidders - 1)
+
+    return bid_adjustment, bid_adjustment_1st
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    ## 3.5. Suljettu first-price huutokauppa
+
+    ### Tasapainostrategia
+
+    Tarjoaja $i$ signaalilla $s$ maksimoi odotetun voittonsa:
+    $$\pi(b, s) = E\!\left[(V - b)\cdot \mathbf{1}(Y_1 < (b^*)^{-1}(b))\;\middle|\;s_i = s\right]$$
+
+    Ensimmäisen asteen ehto (FOC) marginaalivoittajalla $x = s$:
+    $$\bigl(E[V \mid s,\,Y_1 = s] - b^*(s)\bigr)\cdot f_{Y_1|s}(s)
+    \;=\; (b^*)'(s)\cdot P(Y_1 < s \mid s)$$
+
+    ### Normaalijakauman rakenne yksinkertaistaa
+
+    Koska $s_j \mid s_i=s \sim N(s, 2\sigma^2)$, on siirtymäinvarianssista
+    $b^*(s) = s - \sigma\,d(n)$ jollakin vakiolla $d(n)$.
+    Tällöin $(b^*)'(s) = 1$ ja:
+
+    $$P(Y_1 < s \mid s) = \left(\tfrac{1}{2}\right)^{n-1}, \qquad
+    f_{Y_1|s}(s) = \frac{n-1}{2\sigma\sqrt{\pi}}\cdot\left(\tfrac{1}{2}\right)^{n-2}$$
+
+    Lisäksi $E[V \mid s, Y_1 = s] = s - \sigma\,c(n)$ — täsmälleen sama suure kuin
+    suljettua 2nd-price-huutokauppaa vastaava tarjous.
+
+    ### Lopputulos
+
+    Sijoittamalla FOC:hen ja sieventämällä:
+
+    $$\sigma(d - c(n))\cdot\frac{n-1}{2\sigma\sqrt{\pi}}\cdot\frac{1}{2^{n-2}}
+    = \frac{1}{2^{n-1}}$$
+
+    $$\boxed{d(n) = c(n) + \frac{\sqrt{\pi}}{n-1}}$$
+
+    Termi $\sqrt{\pi}/(n-1)$ on **strateginen alihinnoittelu**: koska tarjoaja
+    maksaa oman tarjouksensa (ei kilpailijan tarjousta), hän alittaa
+    indifferenssitarjouksensa $\sigma\sqrt{\pi}/(n-1)$ verran.
+    Kilpailun kasvaessa ($n\to\infty$) strateginen ero katoaa.
+
+    Suljetulle $n=3$:lle:
+    $$d(3) = \frac{1}{\sqrt{3\pi}} + \frac{\sqrt{\pi}}{2} \approx 0{,}326 + 0{,}886 = 1{,}212$$
+
+    ---
+
     ## 4. Englantilainen huutokauppa
 
     ### Tippumisstrategia
@@ -191,6 +240,9 @@ def _(mo):
 
     Koska $s_{(k)} = V + \sigma Z_{(k:n)}$:
 
+    **Suljettu 1st price:** Voittaja (korkein signaali) maksaa $b^*(s_{(n:n)}) = s_{(n:n)} - \sigma d(n)$:
+    $$\mathbb{E}[U_{1st}] = \sigma\!\left(d(n) - \mathbb{E}[Z_{(n:n)}]\right)$$
+
     **Suljettu 2nd price:**
     $$\mathbb{E}[U_{2nd}] = \sigma\!\left(c(n) - \mathbb{E}[Z_{(n-1:n)}]\right)$$
 
@@ -200,7 +252,9 @@ def _(mo):
     $$\mathbb{E}[P_{eng}] = V - \frac{\sigma\!\left(\mathbb{E}[Z_{(n:n)}] - \mathbb{E}[Z_{(n-1:n)}]\right)}{n}$$
     $$\mathbb{E}[U_{eng}] = \frac{\sigma\!\left(\mathbb{E}[Z_{(n:n)}] - \mathbb{E}[Z_{(n-1:n)}]\right)}{n} > 0$$
 
-    Englantilainen tuottaa myyjälle enemmän kuin suljettu second-price (linkage-periaate).
+    **Kytkentäperiaate (Milgrom–Weber 1982):** Huutokauppamuoto, joka paljastaa enemmän
+    informaatiota voittajalle, tuottaa myyjälle enemmän.
+    $$\mathbb{E}[P_{eng}] > \mathbb{E}[P_{2nd}] > \mathbb{E}[P_{1st}]$$
     Järjestysstatistiikkojen odotusarvot lasketaan numeerisesti simulaatiossa.
     """)
     return
@@ -226,7 +280,7 @@ def _(mo):
 
 
 @app.cell
-def _(bid_adjustment, np, slider_N, slider_V, slider_n, slider_sigma):
+def _(bid_adjustment, bid_adjustment_1st, np, slider_N, slider_V, slider_n, slider_sigma):
     V     = slider_V.value
     n     = slider_n.value
     sigma = slider_sigma.value
@@ -249,6 +303,10 @@ def _(bid_adjustment, np, slider_N, slider_V, slider_n, slider_sigma):
     price_naive   = sorted_s[:, -2]
     utility_naive = V - price_naive
 
+    dn          = bid_adjustment_1st(n)
+    price_1st   = sorted_s[:, -1] - sigma * dn   # winner pays own bid
+    utility_1st = V - price_1st
+
     # Järjestysstatistiikkojen odotusarvot (Monte Carlo, V kumoutuu)
     z_mc  = np.sort(np.random.default_rng(99).standard_normal(size=(200000, n)), axis=1)
     Ez_n1 = float(np.mean(z_mc[:, -2]))
@@ -256,18 +314,23 @@ def _(bid_adjustment, np, slider_N, slider_V, slider_n, slider_sigma):
 
     eu_2nd_formula = sigma * (cn - Ez_n1)
     eu_eng_formula = sigma * (Ez_n - Ez_n1) / n
+    eu_1st_formula = sigma * (dn - Ez_n)
     return (
         Ez_n,
         Ez_n1,
         V,
         cn,
+        dn,
+        eu_1st_formula,
         eu_2nd_formula,
         eu_eng_formula,
         n,
+        price_1st,
         price_2nd,
         price_eng,
         price_naive,
         sigma,
+        utility_1st,
         utility_2nd,
         utility_eng,
         utility_naive,
@@ -280,49 +343,57 @@ def _(
     Ez_n1,
     V,
     cn,
+    dn,
+    eu_1st_formula,
     eu_2nd_formula,
     eu_eng_formula,
     mo,
     n,
     np,
+    price_1st,
     price_2nd,
     price_eng,
     price_naive,
     sigma,
+    utility_1st,
     utility_2nd,
     utility_eng,
     utility_naive,
 ):
     wc_naive = np.mean(utility_naive < 0) * 100
+    wc_1st   = np.mean(utility_1st   < 0) * 100
     wc_2nd   = np.mean(utility_2nd   < 0) * 100
     wc_eng   = np.mean(utility_eng   < 0) * 100
     mo.md(f"""
     ### Tulokset: n={n}, σ={sigma}, V={V}
 
-    Numeerinen winner's curse -korjaus: $c(n) = {cn:.4f}$,
+    $c(n) = {cn:.4f}$, $d(n) = {dn:.4f}$,
     $\\mathbb{{E}}[Z_{{(n-1:n)}}] = {Ez_n1:.4f}$,
     $\\mathbb{{E}}[Z_{{(n:n)}}] = {Ez_n:.4f}$
 
-    | | Naiivi | 2nd rat. | Eng. rat. |
-    |---|---|---|---|
-    | **E[utility] — kaava** | — | {eu_2nd_formula:.3f} | {eu_eng_formula:.3f} |
-    | **E[utility] — simulaatio** | {np.mean(utility_naive):.3f} | {np.mean(utility_2nd):.3f} | {np.mean(utility_eng):.3f} |
-    | **P(utility < 0)** | {wc_naive:.1f}% | {wc_2nd:.1f}% | {wc_eng:.1f}% |
-    | **E[hinta myyjälle]** | {np.mean(price_naive):.2f} | {np.mean(price_2nd):.2f} | {np.mean(price_eng):.2f} |
+    | | Naiivi | 1st rat. | 2nd rat. | Eng. rat. |
+    |---|---|---|---|---|
+    | **E[utility] — kaava** | — | {eu_1st_formula:.3f} | {eu_2nd_formula:.3f} | {eu_eng_formula:.3f} |
+    | **E[utility] — simulaatio** | {np.mean(utility_naive):.3f} | {np.mean(utility_1st):.3f} | {np.mean(utility_2nd):.3f} | {np.mean(utility_eng):.3f} |
+    | **P(utility < 0)** | {wc_naive:.1f}% | {wc_1st:.1f}% | {wc_2nd:.1f}% | {wc_eng:.1f}% |
+    | **E[hinta myyjälle]** | {np.mean(price_naive):.2f} | {np.mean(price_1st):.2f} | {np.mean(price_2nd):.2f} | {np.mean(price_eng):.2f} |
+
+    Kytkentäperiaate: $\\mathbb{{E}}[P_{{eng}}] > \\mathbb{{E}}[P_{{2nd}}] > \\mathbb{{E}}[P_{{1st}}]$
     """)
     return
 
 
 @app.cell
-def _(V, n, np, plt, price_2nd, price_eng, price_naive, sigma):
+def _(V, n, np, plt, price_1st, price_2nd, price_eng, price_naive, sigma):
     fig1, ax1 = plt.subplots(figsize=(10, 4))
-    all_p = np.concatenate([price_naive, price_2nd, price_eng])
+    all_p = np.concatenate([price_naive, price_1st, price_2nd, price_eng])
     bins  = np.linspace(all_p.min() - 1, all_p.max() + 1, 60)
-    ax1.hist(price_naive, bins=bins, alpha=0.40, color="#e07b39", label="Naiivi")
-    ax1.hist(price_2nd,   bins=bins, alpha=0.40, color="#4c8fd6", label="2nd rat.")
-    ax1.hist(price_eng,   bins=bins, alpha=0.40, color="#3daa6a", label="Eng. rat.")
+    ax1.hist(price_naive, bins=bins, alpha=0.35, color="#e07b39", label="Naiivi")
+    ax1.hist(price_1st,   bins=bins, alpha=0.35, color="#9b59b6", label="1st rat.")
+    ax1.hist(price_2nd,   bins=bins, alpha=0.35, color="#4c8fd6", label="2nd rat.")
+    ax1.hist(price_eng,   bins=bins, alpha=0.35, color="#3daa6a", label="Eng. rat.")
     ax1.axvline(V, color="black", linewidth=1.5, linestyle="--", label=f"V = {V}")
-    for p_arr, col in [(price_naive, "#e07b39"), (price_2nd, "#4c8fd6"), (price_eng, "#3daa6a")]:
+    for p_arr, col in [(price_naive, "#e07b39"), (price_1st, "#9b59b6"), (price_2nd, "#4c8fd6"), (price_eng, "#3daa6a")]:
         ax1.axvline(np.mean(p_arr), color=col, linewidth=2)
     ax1.set_xlabel("Voittajan maksama hinta")
     ax1.set_ylabel("Frekvenssi")
@@ -334,30 +405,37 @@ def _(V, n, np, plt, price_2nd, price_eng, price_naive, sigma):
 
 
 @app.cell
-def _(bid_adjustment, n, np, plt):
+def _(bid_adjustment, bid_adjustment_1st, n, np, plt):
     ns     = np.arange(2, 31)
     cn_ns  = np.array([bid_adjustment(ni) for ni in ns])
+    dn_ns  = np.array([bid_adjustment_1st(ni) for ni in ns])
 
+    eu_1st_ns   = np.zeros(len(ns))
     eu_2nd_ns   = np.zeros(len(ns))
     eu_eng_ns   = np.zeros(len(ns))
     wc_naive_ns = np.zeros(len(ns))
+    wc_1st_ns   = np.zeros(len(ns))
     wc_2nd_ns   = np.zeros(len(ns))
     wc_eng_ns   = np.zeros(len(ns))
 
     for k, ni in enumerate(ns):
         z_k  = np.sort(np.random.default_rng(seed=k).standard_normal(size=(5000, ni)), axis=1)
         cn_k = cn_ns[k]
+        dn_k = dn_ns[k]
+        eu_1st_ns[k]   = dn_k - np.mean(z_k[:, -1])
         eu_2nd_ns[k]   = cn_k - np.mean(z_k[:, -2])
         eu_eng_ns[k]   = (np.mean(z_k[:, -1]) - np.mean(z_k[:, -2])) / ni
         wc_naive_ns[k] = np.mean(z_k[:, -2] > 0) * 100
+        wc_1st_ns[k]   = np.mean(z_k[:, -1] > dn_k) * 100
         wc_2nd_ns[k]   = np.mean(z_k[:, -2] > cn_k) * 100
         wc_eng_ns[k]   = np.mean(np.sum(z_k[:, :-2], axis=1) + 2 * z_k[:, -2] > 0) * 100
 
     fig2, axes = plt.subplots(1, 2, figsize=(12, 4))
 
     ax_eu = axes[0]
-    ax_eu.plot(ns, eu_2nd_ns, color="#4c8fd6", linewidth=2, label="2nd rat.")
-    ax_eu.plot(ns, eu_eng_ns, color="#3daa6a", linewidth=2, linestyle="--", label="Eng. rat.")
+    ax_eu.plot(ns, eu_1st_ns,  color="#9b59b6", linewidth=2, label="1st rat.")
+    ax_eu.plot(ns, eu_2nd_ns,  color="#4c8fd6", linewidth=2, label="2nd rat.")
+    ax_eu.plot(ns, eu_eng_ns,  color="#3daa6a", linewidth=2, linestyle="--", label="Eng. rat.")
     ax_eu.axhline(0, color="black", linewidth=1, linestyle="--")
     ax_eu.axvline(n, color="gray", linewidth=1, linestyle=":", alpha=0.8)
     ax_eu.set_xlabel("Tarjoajien määrä n")
@@ -367,6 +445,7 @@ def _(bid_adjustment, n, np, plt):
 
     ax_wc = axes[1]
     ax_wc.plot(ns, wc_naive_ns, color="#e07b39", linewidth=2, label="Naiivi")
+    ax_wc.plot(ns, wc_1st_ns,   color="#9b59b6", linewidth=2, label="1st rat.")
     ax_wc.plot(ns, wc_2nd_ns,   color="#4c8fd6", linewidth=2, label="2nd rat.")
     ax_wc.plot(ns, wc_eng_ns,   color="#3daa6a", linewidth=2, linestyle="--", label="Eng. rat.")
     ax_wc.axhline(50, color="black", linewidth=1, linestyle="--", alpha=0.5)
