@@ -13,7 +13,7 @@ def _(mo):
     nyt normaalijakautunut. Analyysimme kattaa:
 
     - Suljettu second-price huutokauppa — tasapainostrategia numeerisella korjauksella
-    - Englantilainen huutokauppa — sama tippumisstrategia kuin tasajakaumassa
+    - Englantilainen huutokauppa — tippumisstrategia eroaa tasajakaumasta
     """)
     return
 
@@ -43,13 +43,14 @@ def _(mo):
 
     $$V \mid s_i \;\sim\; N(s_i,\; \sigma^2)$$
 
-    Kun tiedossa on kaksi signaalia $s_a$ ja $s_b$:
+    Kun tiedossa on $k$ signaalia $s_1, \ldots, s_k$:
 
-    $$V \mid s_a, s_b \;\sim\; N\!\left(\frac{s_a + s_b}{2},\; \frac{\sigma^2}{2}\right)$$
+    $$V \mid s_1, \ldots, s_k \;\sim\; N\!\left(\bar{s}_k,\; \frac{\sigma^2}{k}\right), \qquad \bar{s}_k = \frac{s_1 + \cdots + s_k}{k}$$
 
-    Posterioriodotusarvo on aina signaalien aritmeettinen keskiarvo.
-    Tämä pätee kaikille symmetrisille kohinajakaumille tasaisella priorilla —
-    ei vain normaalijakaumalle.
+    Jokainen uusi havainto siirtää posterioria kohti signaalien juoksevaa keskiarvoa ja
+    kaventaa epävarmuutta. Tämä on normaalijakauman konjugaattiominaisuus: tasajakaumassa
+    vastaava ilmiö ei esiinny — siellä vain ääripäät (minimi ja maksimi) rajaavat
+    posterioria, eivät väliarvot.
     """)
     return
 
@@ -121,19 +122,23 @@ def _(mo):
     **Ensimmäinen tippuja:** tippuu hinnalla $p_1 = s_{(1)}$ (Nashin tasapaino — poikkeamat
     kumpaankin suuntaan tuottavat $\Delta U < 0$).
 
-    **Myöhemmät tippujat ($k \geq 2$):** tietävät $s_{(1)}$ ja oman signaalinsa $s_k$.
-    Normaaliposteriori:
-    $$V \mid s_{(1)}, s_k \;\sim\; N\!\left(\frac{s_{(1)} + s_k}{2},\; \frac{\sigma^2}{2}\right)$$
+    **Myöhemmät tippujat ($k \geq 2$):** jokainen aiempi poistuja paljastaa signaalinsa
+    tippumishinnan kautta. Tarjoaja $k$ tietää siis $s_{(1)}, s_{(2)}, \ldots, s_{(k-1)}$
+    sekä oman signaalinsa $s_{(k)}$ — yhteensä $k$ signaalia. Normaaliposteriori:
+
+    $$V \mid s_{(1)}, \ldots, s_{(k)} \;\sim\; N\!\left(\bar{s}_k,\; \frac{\sigma^2}{k}\right), \qquad
+    \bar{s}_k = \frac{s_{(1)} + \cdots + s_{(k)}}{k}$$
 
     Tasapainoehto — tipu, kun hinta saavuttaa posterioriodotusarvon:
-    $$p_k = \frac{s_{(1)} + s_k}{2}$$
+    $$p_k = \bar{s}_k = \frac{s_{(1)} + \cdots + s_{(k)}}{k}$$
 
-    **Huomio:** Tämä on täsmälleen sama kaava kuin tasajakautuneiden signaalien tapauksessa.
-    Syy: tasaisella priorilla ja symmetrisellä kohinalla kahden signaalin posterioriodotusarvo
-    on aina niiden keskiarvo — riippumatta kohinan jakaumasta.
+    **Ero tasajakaumaan:** Tasajakaumassa vain ääriarvot $s_{(1)}$ ja $s_{(k)}$ vaikuttavat
+    posterioriin, joten $p_k = (s_{(1)} + s_{(k)})/2$. Normaalijakaumassa jokainen
+    väliarvo on informatiivinen (konjugaattiominaisuus), joten tippumishinta on kaikkien
+    tähän mennessä havaittujen signaalien keskiarvo.
 
-    Voittaja (korkein signaali $s_{(n)}$) maksaa:
-    $$P = p_{n-1} = \frac{s_{(n-1)} + s_{(1)}}{2}$$
+    Voittaja (korkein signaali $s_{(n)}$) maksaa viimeisen tippujan hinnan:
+    $$P = p_{n-1} = \frac{s_{(1)} + s_{(2)} + \cdots + s_{(n-1)}}{n-1}$$
     """)
     return
 
@@ -151,12 +156,14 @@ def _(mo):
     **Suljettu 2nd price:**
     $$\mathbb{E}[U_{2nd}] = \sigma\!\left(c(n) - \mathbb{E}[Z_{(n-1:n)}]\right)$$
 
-    **Englantilainen:**
-    $$\mathbb{E}[U_{eng}] = \frac{\sigma}{2}\!\left(\mathbb{E}[Z_{(n:n)}] - \mathbb{E}[Z_{(n-1:n)}]\right) > 0$$
+    **Englantilainen:** Voittaja maksaa $P = (s_{(1)}+\cdots+s_{(n-1)})/(n-1)$.
+    Kaikkien $n$ järjestysstatistiikkojen summan odotusarvo on nolla
+    ($\mathbb{E}[\sum_k Z_{(k:n)}] = n\mathbb{E}[Z] = 0$), joten:
+    $$\mathbb{E}[P_{eng}] = V - \frac{\sigma\,\mathbb{E}[Z_{(n:n)}]}{n-1}$$
+    $$\mathbb{E}[U_{eng}] = \frac{\sigma\,\mathbb{E}[Z_{(n:n)}]}{n-1} > 0$$
 
-    Koska $\mathbb{E}[Z_{(n:n)}] > \mathbb{E}[Z_{(n-1:n)}]$, englantilainen tuottaa myyjälle
-    enemmän (linkage-periaate). Järjestysstatistiikkojen odotusarvot lasketaan
-    numeerisesti simulaatiossa.
+    Englantilainen tuottaa myyjälle enemmän kuin suljettu second-price (linkage-periaate).
+    Järjestysstatistiikkojen odotusarvot lasketaan numeerisesti simulaatiossa.
     """)
     return
 
@@ -194,7 +201,7 @@ def _(bid_adjustment, np, slider_N, slider_V, slider_n, slider_sigma):
     price_2nd = np.sort(bids_2nd, axis=1)[:, -2]
     utility_2nd = V - price_2nd
 
-    price_eng   = (sorted_s[:, -2] + sorted_s[:, 0]) / 2
+    price_eng   = np.mean(sorted_s[:, :-1], axis=1)   # keskiarvo n-1 pienimmästä
     utility_eng = V - price_eng
 
     price_naive   = sorted_s[:, -2]
@@ -206,7 +213,7 @@ def _(bid_adjustment, np, slider_N, slider_V, slider_n, slider_sigma):
     Ez_n  = float(np.mean(z_mc[:, -1]))
 
     eu_2nd_formula = sigma * (cn - Ez_n1)
-    eu_eng_formula = sigma * (Ez_n - Ez_n1) / 2
+    eu_eng_formula = sigma * Ez_n / (n - 1)
 
     return (
         V, n, sigma, N_sim, cn, Ez_n1, Ez_n,
@@ -279,10 +286,10 @@ def _(bid_adjustment, n, np, plt):
         z_k  = np.sort(np.random.default_rng(seed=k).standard_normal(size=(5000, ni)), axis=1)
         cn_k = cn_ns[k]
         eu_2nd_ns[k]   = cn_k - np.mean(z_k[:, -2])
-        eu_eng_ns[k]   = (np.mean(z_k[:, -1]) - np.mean(z_k[:, -2])) / 2
+        eu_eng_ns[k]   = np.mean(z_k[:, -1]) / (ni - 1)
         wc_naive_ns[k] = np.mean(z_k[:, -2] > 0) * 100
         wc_2nd_ns[k]   = np.mean(z_k[:, -2] > cn_k) * 100
-        wc_eng_ns[k]   = np.mean(z_k[:, -2] + z_k[:, 0] > 0) * 100
+        wc_eng_ns[k]   = np.mean(np.sum(z_k[:, :-1], axis=1) > 0) * 100
 
     fig2, axes = plt.subplots(1, 2, figsize=(12, 4))
 
