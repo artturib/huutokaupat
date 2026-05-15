@@ -22,7 +22,7 @@ def _(mo):
     Muistiossa vertaillaan kolmea eri huutokauppamekanismia:
     1. **Second-price sealed-bid auction** Huutokauppa, jossa tarjoajat jättävät tarjouksen suljettuun kirjekuoreen. Korkeimman tarjouksen jättänyt on velvollinen ostamaan huutokaupan kohteen toiseksi korkeimman tarjouksen hinnalla
     2. **First-price sealed-bid auction** Huutokauppa, jossa tarjoajat jättävät tarjouksen suljettuun kirjekuoreen. Korkeimman tarjouksen jättänyt on velvollinen ostamaan huutokaupan kohteen tarjoamallaan hinnalla.
-    3. **Open-bid auction** Huutokauppa, jossa tarjoajat jättävät tarjouksen julkisesti kauppapaikalle. Korkeimman tarjouksen jättänyt on velvollinen ostamaan huutokaupan kohteen tarjoamallaan hinnalla. Tämä hinta on käytännössä toiseksi korkeimman tarjoajan hinta, koska tarjoukset ovat julkisia, niin voittaja voi tarjota vain hieman enemmän kuin paljonko toiseksi eniten tarjonnut on valmis tarjoamaan.
+    3. **Avoin huutokauppa** Huutokauppa, jossa hinta nousee jatkuvasti ja tarjoajat pysyvät mukana kunnes hinta ylittää oman kynnysarvonsa. Viimeisenä jäljelle jäävä voittaa ja maksaa hinnan, jolla toiseksi viimeinen tippui pois.
 
     Alla esitetään tulokset näiden protokollien välillä, kun tarjoajat käyttävät tarjoajien hyödyn maksimoivaa strategiaa tarjoamiseen ja vertailun vuoksi strategiaa, missä tarjoavat oman signaalinsa verran.
 
@@ -168,7 +168,7 @@ def _(mo):
 
     **Tuottoranking myyjälle:**
 
-    $$\mathbb{E}[\text{hinta}]:\quad \text{naiivi} \;\geq\; \text{eng. rat.} \;\geq\; \text{suljettu 2nd rat.} \;\geq\; \text{suljettu 1st rat.}$$
+    $$\mathbb{E}[\text{hinta}]:\quad \text{naiivi} \;\geq\; \text{avoin rat.} \;\geq\; \text{suljettu 2nd rat.} \;\geq\; \text{suljettu 1st rat.}$$
 
     Linkage Principle: $\mathbb{E}[P_\text{eng}] = V - \frac{e}{n+1} \;\geq\; V - \frac{2e(n-1)}{n(n+1)} = \mathbb{E}[P_\text{2nd}] \;>\; V - \frac{2e}{n+1} = \mathbb{E}[P_\text{1st}]$
     kaikilla $n \geq 2$. ✓
@@ -352,7 +352,7 @@ def _(mo):
     ---
 
     <a id="liite-d"></a>
-    ## Liite D: Englantilaisen tippumishinnan johtaminen
+    ## Liite D: Avoimen huutokaupan tippumishinnan johtaminen
 
     **Ensimmäinen tippuja ($k = 1$).**
     Ensimmäisen tippujan utility on **nolla riippumatta tippumishinnasta** — heillä on matalin
