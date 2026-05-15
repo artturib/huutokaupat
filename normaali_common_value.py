@@ -142,9 +142,10 @@ def _(mo):
     välisignaalit, koska normaaliposteriori on konjugaatti ja jokainen havainto
     vaikuttaa posterioriodotusarvoon.
 
-    **Kaunis sivutulos:** voittaja maksaa *aina* alle $V$:n:
-    $$P = V + \frac{\sigma(Z_{(n-1:n)} - Z_{(n:n)})}{n} < V \quad \text{aina}$$
-    koska $Z_{(n-1:n)} < Z_{(n:n)}$ aina. Winner's curse -todennäköisyys on täsmälleen 0.
+    **Huomio:** Voittajan maksama hinta on:
+    $$P = V + \frac{\sigma}{n}\!\left(\sum_{k=1}^{n-2}Z_{(k:n)} + 2Z_{(n-1:n)}\right)$$
+    Termi $\sum Z_{(k:n)}$ on signaalien otoskeskivirhe, joka vaihtelee realisaatiosta toiseen.
+    Odotusarvossa $\mathbb{E}[P] < V$, mutta yksittäisissä realisaatioissa $P > V$ on mahdollinen.
     """)
     return
 
@@ -319,7 +320,7 @@ def _(bid_adjustment, n, np, plt):
         eu_eng_ns[k]   = (np.mean(z_k[:, -1]) - np.mean(z_k[:, -2])) / ni
         wc_naive_ns[k] = np.mean(z_k[:, -2] > 0) * 100
         wc_2nd_ns[k]   = np.mean(z_k[:, -2] > cn_k) * 100
-        wc_eng_ns[k]   = 0.0   # aina 0: Z_(n-1:n) < Z_(n:n) aina
+        wc_eng_ns[k]   = np.mean(np.sum(z_k[:, :-1], axis=1) + z_k[:, -2] > 0) * 100
 
     fig2, axes = plt.subplots(1, 2, figsize=(12, 4))
 
