@@ -125,7 +125,6 @@ def _(mo):
 
 @app.cell
 def _():
-    import math as _math
     from scipy import integrate as _sci_int
     from scipy.stats import norm as _sci_norm
 
@@ -142,10 +141,13 @@ def _():
         return -num / den
 
     def bid_adjustment_1st(n_bidders):
-        """d(n) = c(n) + sqrt(pi)/(n-1): winner's curse + strateginen alihinnoittelu"""
+        """d(n) = c(n) + 1/E[Z_(n:n)]: winner's curse + strateginen alihinnoittelu"""
         if n_bidders <= 1:
             return 0.0
-        return bid_adjustment(n_bidders) + _math.sqrt(_math.pi) / (n_bidders - 1)
+        def ez_fn(z):
+            return n_bidders * z * _sci_norm.pdf(z) * _sci_norm.cdf(z)**(n_bidders - 1)
+        ez_n, _ = _sci_int.quad(ez_fn, -15, 15)
+        return bid_adjustment(n_bidders) + 1.0 / ez_n
 
     return bid_adjustment, bid_adjustment_1st
 
@@ -155,43 +157,65 @@ def _(mo):
     mo.md(r"""
     ## 3.5. Suljettu first-price huutokauppa
 
-    ### Tasapainostrategia
+    ### Mikä on tasapainoehto?
 
-    Tarjoaja $i$ signaalilla $s$ maksimoi odotetun voittonsa:
-    $$\pi(b, s) = E\!\left[(V - b)\cdot \mathbf{1}(Y_1 < (b^*)^{-1}(b))\;\middle|\;s_i = s\right]$$
+    Suljetussa ensimmäisessä huutokaupassa voittaja **maksaa oman tarjouksensa**.
+    Tarjoajalla on siis kaksi vastakkaista kannustinta:
 
-    Ensimmäisen asteen ehto (FOC) marginaalivoittajalla $x = s$:
-    $$\bigl(E[V \mid s,\,Y_1 = s] - b^*(s)\bigr)\cdot f_{Y_1|s}(s)
-    \;=\; (b^*)'(s)\cdot P(Y_1 < s \mid s)$$
+    - Korkea tarjous $\uparrow$ → voittaa useammin
+    - Korkea tarjous $\uparrow$ → maksaa enemmän jos voittaa
 
-    ### Normaalijakauman rakenne yksinkertaistaa
+    Symmetrisessä tasapainossa jokainen tarjoaa $b^*(s_i)$ jostakin kasvavasta
+    funktiosta $b^*$. Tarjoajan $i$ odotettu voitto tarjouksella $b$ on:
+    $$\pi(b,\,s_i) = \underbrace{E[V \mid s_i]}_{\text{oma käsitys}} -\; b)
+    \;\cdot\; \underbrace{P(\text{voitan} \mid s_i,\, \text{tarjous}=b)}_{\text{voittotodennäköisyys}}$$
 
-    Koska $s_j \mid s_i=s \sim N(s, 2\sigma^2)$, on siirtymäinvarianssista
-    $b^*(s) = s - \sigma\,d(n)$ jollakin vakiolla $d(n)$.
-    Tällöin $(b^*)'(s) = 1$ ja:
+    Voitto tapahtuu kun oma tarjous on korkein, ts. $b > b^*(s_j)$ kaikille $j \neq i$.
+    Koska $b^*$ on kasvava, tämä vastaa ehtoa $s_j < (b^*)^{-1}(b)$ kaikille.
 
-    $$P(Y_1 < s \mid s) = \left(\tfrac{1}{2}\right)^{n-1}, \qquad
-    f_{Y_1|s}(s) = \frac{n-1}{2\sigma\sqrt{\pi}}\cdot\left(\tfrac{1}{2}\right)^{n-2}$$
+    Tasapainoehdoksi (FOC marginaalivoittajalla $s_i = Y_1$) saadaan:
+    $$\bigl(\underbrace{E[V \mid s_i, Y_1 = s_i]}_{\text{2nd price -tarjous }= s_i - \sigma c(n)}
+    \;-\; b^*(s_i)\bigr)\cdot f_{Y_1|s_i}(s_i)
+    \;=\; (b^*)'(s_i)\cdot P(Y_1 < s_i \mid s_i)$$
 
-    Lisäksi $E[V \mid s, Y_1 = s] = s - \sigma\,c(n)$ — täsmälleen sama suure kuin
-    suljettua 2nd-price-huutokauppaa vastaava tarjous.
+    ### Siirtymäinvarianssi — lineaarinen tasapaino
+
+    Koska signaalivirheet ovat normaalijakautuneita (siirtymäinvariantti), tasapaino
+    on lineaarinen: $b^*(s) = s - \sigma\,d(n)$ jollakin vakiolla $d(n)$.
+    Tällöin $(b^*)'(s) = 1$.
+
+    ### Kilpailijoiden signaalit ovat korreloituneita
+
+    **Avainhuomio:** vaikka kukin $s_j \mid s_i = s$ on marginaalisesti $N(s, 2\sigma^2)$,
+    ne eivät ole riippumattomia — kaikkia kilpailijoiden signaaleja yhdistää yhteinen
+    tuntematon $V$. Oikea laskutapa käyttää odotusarvon lakia:
+
+    $$P(Y_1 < s \mid s_i = s)
+    = E_{V \mid s}\!\left[\Phi\!\left(\tfrac{s-V}{\sigma}\right)^{n-1}\right]
+    = \int_{-\infty}^{\infty} \Phi(z)^{n-1}\,\varphi(z)\,dz
+    = \frac{1}{n}$$
+
+    (integraalin arvo on $[\Phi(z)^n/n]_{-\infty}^{\infty} = 1/n$). Vastaavalla
+    laskulla tiheys pistessä $s$:
+
+    $$f_{Y_1|s}(s) = \frac{n-1}{\sigma}\int_{-\infty}^{\infty}\Phi(z)^{n-2}\varphi(z)^2\,dz$$
+
+    Integraalille löytyy kätevä identiteetti: osin integroimalla $E[Z_{(n:n)}]$:
+    $$E[Z_{(n:n)}] = n(n-1)\int_{-\infty}^{\infty}\Phi(z)^{n-2}\varphi(z)^2\,dz
+    \;\implies\; f_{Y_1|s}(s) = \frac{E[Z_{(n:n)}]}{n\sigma}$$
 
     ### Lopputulos
 
-    Sijoittamalla FOC:hen ja sieventämällä:
+    Sijoittamalla FOC:hen ($b^*=s-\sigma d$, $(b^*)'=1$,
+    $E[V\mid s,Y_1=s] = s-\sigma c(n)$):
 
-    $$\sigma(d - c(n))\cdot\frac{n-1}{2\sigma\sqrt{\pi}}\cdot\frac{1}{2^{n-2}}
-    = \frac{1}{2^{n-1}}$$
+    $$\sigma(d - c(n))\cdot\frac{E[Z_{(n:n)}]}{n\sigma} = \frac{1}{n}$$
 
-    $$\boxed{d(n) = c(n) + \frac{\sqrt{\pi}}{n-1}}$$
+    $$\boxed{d(n) = c(n) + \frac{1}{E[Z_{(n:n)}]}}$$
 
-    Termi $\sqrt{\pi}/(n-1)$ on **strateginen alihinnoittelu**: koska tarjoaja
-    maksaa oman tarjouksensa (ei kilpailijan tarjousta), hän alittaa
-    indifferenssitarjouksensa $\sigma\sqrt{\pi}/(n-1)$ verran.
-    Kilpailun kasvaessa ($n\to\infty$) strateginen ero katoaa.
-
-    Suljetulle $n=3$:lle:
-    $$d(3) = \frac{1}{\sqrt{3\pi}} + \frac{\sqrt{\pi}}{2} \approx 0{,}326 + 0{,}886 = 1{,}212$$
+    Strateginen alihinnoittelu 1st vs 2nd price on $\sigma/E[Z_{(n:n)}]$: suurempi kun
+    kilpailijoita on vähän (voittaja tietää olevansa paljon paremman signaalin haltija),
+    pienempi kun kilpailijoita on paljon. $E[Z_{(n:n)}]$ lasketaan numeerisesti.
 
     ---
 
@@ -405,10 +429,9 @@ def _(V, n, np, plt, price_1st, price_2nd, price_eng, price_naive, sigma):
 
 
 @app.cell
-def _(bid_adjustment, bid_adjustment_1st, n, np, plt):
-    ns     = np.arange(2, 31)
-    cn_ns  = np.array([bid_adjustment(ni) for ni in ns])
-    dn_ns  = np.array([bid_adjustment_1st(ni) for ni in ns])
+def _(bid_adjustment, n, np, plt):
+    ns    = np.arange(2, 31)
+    cn_ns = np.array([bid_adjustment(ni) for ni in ns])
 
     eu_1st_ns   = np.zeros(len(ns))
     eu_2nd_ns   = np.zeros(len(ns))
@@ -421,7 +444,7 @@ def _(bid_adjustment, bid_adjustment_1st, n, np, plt):
     for k, ni in enumerate(ns):
         z_k  = np.sort(np.random.default_rng(seed=k).standard_normal(size=(5000, ni)), axis=1)
         cn_k = cn_ns[k]
-        dn_k = dn_ns[k]
+        dn_k = cn_k + 1.0 / np.mean(z_k[:, -1])   # d = c + 1/E[Z_(n:n)]
         eu_1st_ns[k]   = dn_k - np.mean(z_k[:, -1])
         eu_2nd_ns[k]   = cn_k - np.mean(z_k[:, -2])
         eu_eng_ns[k]   = (np.mean(z_k[:, -1]) - np.mean(z_k[:, -2])) / ni
