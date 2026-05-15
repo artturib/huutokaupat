@@ -31,14 +31,15 @@ def _(mo):
     | | Ostajan E[utility] | Myyjän E[tulo] |
     |---|---|---|
     | Tarjous = oma sigaali | $e\,\frac{3-n}{n+1}$ | $V + e\,\frac{n-3}{n+1}$ |
-    | Suljetun huutokaupan optimistrategia (1st = 2nd) | $\dfrac{2e}{n+1}$ | $V - \dfrac{2e}{n+1}$ |
+    | Suljettu 2nd price optimistrategia | $\dfrac{2e(n-1)}{n(n+1)}$ | $V - \dfrac{2e(n-1)}{n(n+1)}$ |
+    | Suljettu 1st price optimistrategia | $\dfrac{2e}{n+1}$ | $V - \dfrac{2e}{n+1}$ |
     | Avoimen huutokaupan optimistrategia | $\dfrac{e}{n+1}$ | $V - \dfrac{e}{n+1}$ |
 
     **Johtopäätökset:**
 
     1. Vaikka tarjoajan saama tieto huutokaupan kohteen arvosta on harhaton, eli vastaa keskimäärin huutokaupan kohteen arvoa, niin jos tarjoaja tarjoaa oman tietonsa verran, niin huutokaupan voittaja maksaa keskimäärin liikaa, jos tarjoajia on yli 3. Optimistrategioissa tarjoukset ovat matalampia kuin yksityinen tieto kohteen arvosta.
 
-    2. Suljettuissa huutokaupoissa hinnan odotusarvo on sama riippumatta siitä, valitaanko myyntihinnaksi korkein vai toiseksi korkein tarjous. Tämä johtuu siitä, että tarjoajan optimistrategia verrattuna omaan signaaliin on pienempi huutokaupassa, jossa kohde myydään korkeimman tarjouksen hinnalla.
+    2. Suljettu 2nd price -huutokauppa tuottaa myyjälle enemmän tuloa kuin suljettu 1st price -huutokauppa ($V - \frac{2e(n-1)}{n(n+1)} > V - \frac{2e}{n+1}$). 1st price -huutokaupassa tarjoaja joutuu sheidaamaan tarjouksensa enemmän, koska oma bid on myös maksettu hinta — sheidaus kompensoi täsmälleen sen informaatioedun, jonka winner's curse aiheuttaa. Yhtälöisten tulojen periaate (revenue equivalence) pätee vain *yksityisten arvojen* tapauksessa, ei common value -huutokaupoissa.
 
     3. Avoin huutokauppa tuottaa myyjälle suuremman tulon kuin suljetut huutokaupat. Tämä johtuu siitä, että huutokaupan aikana muiden tarjoajien käyttäytyminen tuo julkiseksi tietoa huutokaupan kohteen arvosta, joka keskimäärin kasvattaa tarjoajien maksuhalukkuutta.
 
@@ -108,16 +109,16 @@ def _(mo):
 
     ## 5. Optimistrategia suljetussa 2nd price huutokaupassa
 
-    $$\boxed{b^*(s_i) = s_i - e\cdot\frac{n-1}{n+1}}$$
+    $$\boxed{b^*(s_i) = s_i - e\cdot\frac{n-2}{n}}$$
 
-    **Myyjän odotettu tulo.** Hinta = toiseksi korkein tarjous $= b^*(s_{(n-1:n)}) = s_{(n-1:n)} - e\cdot\frac{n-1}{n+1}$:
+    **Myyjän odotettu tulo.** Hinta = toiseksi korkein tarjous $= b^*(s_{(n-1:n)}) = s_{(n-1:n)} - e\cdot\frac{n-2}{n}$:
 
-    $$\mathbb{E}[P_\text{2nd}] = \mathbb{E}[s_{(n-1:n)}] - e\cdot\frac{n-1}{n+1}
-    = V + e\cdot\frac{n-3}{n+1} - e\cdot\frac{n-1}{n+1} = V - \frac{2e}{n+1}$$
+    $$\mathbb{E}[P_\text{2nd}] = \mathbb{E}[s_{(n-1:n)}] - e\cdot\frac{n-2}{n}
+    = V + e\cdot\frac{n-3}{n+1} - e\cdot\frac{n-2}{n} = V - \frac{2e(n-1)}{n(n+1)}$$
 
     **Ostajan odotettu utility.** Koska $\mathbb{E}[U] = V - \mathbb{E}[P]$:
 
-    $$\mathbb{E}[U] = V - \left(V - \frac{2e}{n+1}\right) = \frac{2e}{n+1} \qquad \checkmark$$
+    $$\mathbb{E}[U] = V - \left(V - \frac{2e(n-1)}{n(n+1)}\right) = \frac{2e(n-1)}{n(n+1)} \qquad \checkmark$$
 
     [→ Liite B: Optimistrategian johtaminen](#liite-b)
 
@@ -137,9 +138,8 @@ def _(mo):
 
     $$\mathbb{E}[U_\text{1st}] = V - \left(V - \frac{2e}{n+1}\right) = \frac{2e}{n+1} \qquad \checkmark$$
 
-    **Revenue equivalence:** first-price ja second-price tuottavat **saman odotetun tulon
-    myyjälle** ($V - 2e/(n+1)$). Tämä pätee vaikka kyseessä on common value -huutokauppa,
-    koska signaalit ovat ehdollisesti riippumattomia $V$:n suhteen.
+    **Vertailu 2nd priceen:** $\mathbb{E}[P_\text{1st}] = V - \frac{2e}{n+1} < V - \frac{2e(n-1)}{n(n+1)} = \mathbb{E}[P_\text{2nd}]$,
+    koska $\frac{n}{n(n+1)} > \frac{n-1}{n(n+1)}$. 1st price tuottaa **matalamman** odotetun hinnan kuin 2nd price — tarjoajan täytyy sheida enemmän, koska oma bid on myös maksettu hinta.
 
     [→ Liite C: ODE-johtaminen](#liite-c)
 
@@ -168,10 +168,10 @@ def _(mo):
 
     **Tuottoranking myyjälle:**
 
-    $$\mathbb{E}[\text{hinta}]:\quad \text{naiivi} \;\geq\; \text{eng. rat.} \;\geq\; \text{suljettu 2nd rat.} = \text{suljettu 1st rat.}$$
+    $$\mathbb{E}[\text{hinta}]:\quad \text{naiivi} \;\geq\; \text{eng. rat.} \;\geq\; \text{suljettu 2nd rat.} \;\geq\; \text{suljettu 1st rat.}$$
 
-    Linkage Principle: $\mathbb{E}[P_\text{eng}] = V - \frac{e}{n+1} > V - \frac{2e}{n+1} = \mathbb{E}[P_\text{suljettu}]$
-    kaikilla $n$. ✓
+    Linkage Principle: $\mathbb{E}[P_\text{eng}] = V - \frac{e}{n+1} \;\geq\; V - \frac{2e(n-1)}{n(n+1)} = \mathbb{E}[P_\text{2nd}] \;>\; V - \frac{2e}{n+1} = \mathbb{E}[P_\text{1st}]$
+    kaikilla $n \geq 2$. ✓
 
     [→ Liite D: Tippumishinnan johtaminen](#liite-d)
 
@@ -199,29 +199,38 @@ def _(mo):
     <a id="liite-b"></a>
     ## Liite B: 2nd price optimistrategian johtaminen
 
-    Tasapainoehto: tarjoajan tulee tarjota odotettu $V$:n arvo ehdollisena sille,
-    että hän on korkein tarjoaja:
+    **Keskeinen oivallus.** 2nd price -huutokaupassa tasapainoehto ei ole
+    "mikä on E[V] ehdolla, että voitan outright?" vaan
+    **"millä tarjouksella olen välinpitämätön korottamaan tarjoustani, kun olen
+    tasapisteessä toiseksi korkeimman tarjoajan kanssa?"**
 
-    $$b^*(s) = \mathbb{E}[V \mid s_i = s,\; s_i > \text{kaikki muut}]$$
+    Merkitään $Y_1 = \max_{j \neq i} s_j$ (korkein kilpailijan signaali). Tasapainoehto:
 
-    Johdetaan posteriori Bayesin kaavalla. Tasaisella priorilla $p(V) \propto 1$:
+    $$b^*(s) = \mathbb{E}[V \mid s_i = s,\; Y_1 = s]$$
 
-    $$f(V \mid \text{voitto},\, s_i=s) \;\propto\; \underbrace{p(V)}_{\propto\,1}
-    \cdot \underbrace{f(s_i = s \mid V)}_{\frac{1}{2e},\; V\in(s-e,s+e)}
-    \cdot \underbrace{P(\text{kaikki muut} < s \mid V)}_{\left(\frac{s-V+e}{2e}\right)^{n-1}}$$
+    Johdetaan posteriori Bayesin kaavalla. Tiheys $Y_1 = s$ ehdolla $V$ on järjestysstatistiikan tiheys:
+    yksi kilpailija saa signaalin $s$ (tiheys $\frac{1}{2e}$) ja loput $n-2$ saavat signaalin $< s$
+    (todennäköisyys $\frac{s-V+e}{2e}$ kullakin):
 
-    Oma signaali $s_i = s$ rajaa $V \in (s-e, s+e)$ (muuten $s_i = s$ on mahdoton).
-    Kullekin muulle tarjoajalle $s_j = V + \varepsilon_j < s$ tapahtuu todennäköisyydellä
-    $P(\varepsilon_j < s - V) = \frac{s - V + e}{2e}$, koska $\varepsilon_j \sim U(-e,e)$.
-    Vakiotekijät absorboituvat normalisointivakioon:
+    $$f_{Y_1}(s \mid V) = (n-1)\cdot\frac{1}{2e}\cdot\left(\frac{s-V+e}{2e}\right)^{n-2}$$
 
-    $$f(V \mid \text{voitto},\, s_i=s) \;\propto\; \left(\frac{s-V+e}{2e}\right)^{n-1}, \quad V \in (s-e,\,s+e)$$
+    Tasaisella priorilla $p(V) \propto 1$:
 
-    Sijoituksella $t = s+e-V \in (0,2e)$, tiheys $\propto t^{n-1}$:
+    $$f(V \mid s_i=s,\, Y_1=s) \;\propto\;
+    \underbrace{f(s_i=s \mid V)}_{\frac{1}{2e}}
+    \cdot \underbrace{f_{Y_1}(s \mid V)}_{(n-1)\frac{1}{2e}\left(\frac{s-V+e}{2e}\right)^{n-2}}
+    \;\propto\; \left(\frac{s-V+e}{2e}\right)^{n-2}, \quad V \in (s-e,\,s+e)$$
 
-    $$\mathbb{E}[t] = \frac{\int_0^{2e} t^n\,dt}{\int_0^{2e} t^{n-1}\,dt} = \frac{(2e)^{n+1}/(n+1)}{(2e)^n/n} = \frac{2en}{n+1}$$
+    Sijoituksella $t = s+e-V \in (0,2e)$, tiheys $\propto t^{n-2}$:
 
-    $$b^*(s) = \mathbb{E}[V] = (s+e) - \frac{2en}{n+1} = s - e\cdot\frac{n-1}{n+1} \qquad \checkmark$$
+    $$\mathbb{E}[t] = \frac{\int_0^{2e} t^{n-1}\,dt}{\int_0^{2e} t^{n-2}\,dt}
+    = \frac{(2e)^n/n}{(2e)^{n-1}/(n-1)} = \frac{2e(n-1)}{n}$$
+
+    $$b^*(s) = \mathbb{E}[V] = (s+e) - \frac{2e(n-1)}{n} = s - e\cdot\frac{n-2}{n} \qquad \checkmark$$
+
+    **Erikoistapaus $n=2$:** $b^*(s) = s$ — sheidausta ei lainkaan. Marginaalivoittotilanteessa
+    ainoa kilpailija on tasapisteessä $Y_1 = s$, joten posteriori on symmetrinen $V \sim U(s-e,\,s+e)$
+    ja $\mathbb{E}[V] = s$.
 
     ---
 
@@ -434,7 +443,7 @@ def _(np, slider_N, slider_V, slider_e, slider_n):
     utility_naive = V - price_naive
 
     # --- Suljettu second-price rationaalinen ---
-    delta          = e * (n - 1) / (n + 1)
+    delta          = e * (n - 2) / n
     bids_2nd       = signals - delta
     price_2nd_rat  = np.sort(bids_2nd, axis=1)[:, -2]
     utility_2nd_rat = V - price_2nd_rat
@@ -452,8 +461,9 @@ def _(np, slider_N, slider_V, slider_e, slider_n):
 
     # --- Analyyttiset odotusarvot ---
     eu_naive_formula = e * (3 - n) / (n + 1)
-    eu_sealed_formula = 2 * e / (n + 1)   # sama first- ja second-pricelle
-    eu_eng_formula    = e / (n + 1)        # = e/(n+1), aina > 0 ja < eu_sealed
+    eu_2nd_formula   = 2 * e * (n - 1) / (n * (n + 1))
+    eu_1st_formula   = 2 * e / (n + 1)
+    eu_eng_formula   = e / (n + 1)
     return (
         V,
         bids_1st,
@@ -462,7 +472,8 @@ def _(np, slider_N, slider_V, slider_e, slider_n):
         e,
         eu_eng_formula,
         eu_naive_formula,
-        eu_sealed_formula,
+        eu_2nd_formula,
+        eu_1st_formula,
         n,
         price_1st_rat,
         price_2nd_rat,
@@ -483,7 +494,8 @@ def _(
     e,
     eu_eng_formula,
     eu_naive_formula,
-    eu_sealed_formula,
+    eu_2nd_formula,
+    eu_1st_formula,
     mo,
     n,
     np,
@@ -505,12 +517,12 @@ def _(
 
     | | Naiivi | 2nd rat. | 1st rat. | Eng. rat. |
     |---|---|---|---|---|
-    | **E[utility] — kaava** | {eu_naive_formula:.3f} | {eu_sealed_formula:.3f} | {eu_sealed_formula:.3f} | {eu_eng_formula:.3f} |
+    | **E[utility] — kaava** | {eu_naive_formula:.3f} | {eu_2nd_formula:.3f} | {eu_1st_formula:.3f} | {eu_eng_formula:.3f} |
     | **E[utility] — simulaatio** | {np.mean(utility_naive):.3f} | {np.mean(utility_2nd_rat):.3f} | {np.mean(utility_1st_rat):.3f} | {np.mean(utility_eng_rat):.3f} |
     | **P(utility < 0)** | {wc_naive:.1f}% | {wc_2nd:.1f}% | {wc_1st:.1f}% | {wc_eng:.1f}% |
     | **E[hinta myyjälle]** | {np.mean(price_naive):.2f} | {np.mean(price_2nd_rat):.2f} | {np.mean(price_1st_rat):.2f} | {np.mean(price_eng_rat):.2f} |
 
-    Revenue equivalence: 2nd rat. ({np.mean(price_2nd_rat):.2f}) vs 1st rat. ({np.mean(price_1st_rat):.2f})
+    Linkage Principle: 1st ({np.mean(price_1st_rat):.2f}) < 2nd ({np.mean(price_2nd_rat):.2f}) < Eng. ({np.mean(price_eng_rat):.2f})
     """)
     return
 
@@ -577,7 +589,8 @@ def _(V, bids_1st, bids_2nd, delta, e, n, np, plt, signals):
 def _(e, n, np, plt):
     ns = np.arange(2, 31)
     eu_naive_n   = e * (3 - ns) / (ns + 1)
-    eu_sealed_n  = 2 * e / (ns + 1)
+    eu_2nd_n  = 2 * e * (ns - 1) / (ns * (ns + 1))
+    eu_1st_n  = 2 * e / (ns + 1)
     eu_english_n = e / (ns + 1)
 
     wc_naive_n = np.zeros(len(ns))
@@ -588,7 +601,7 @@ def _(e, n, np, plt):
     for k, ni in enumerate(ns):
         eps_k = np.random.default_rng(seed=k).uniform(-e, e, size=(5000, ni))
         sorted_eps = np.sort(eps_k, axis=1)
-        delta_k = e * (ni - 1) / (ni + 1)
+        delta_k = e * (ni - 2) / ni
         wc_naive_n[k] = np.mean(sorted_eps[:, -2] > 0)
         wc_2nd_n[k]   = np.mean(sorted_eps[:, -2] > delta_k)
         wc_1st_n[k]   = np.mean(sorted_eps[:, -1] >= e)   # ~0 aina
@@ -598,7 +611,8 @@ def _(e, n, np, plt):
 
     ax_eu = axes[0]
     ax_eu.plot(ns, eu_naive_n,   color="#e07b39", linewidth=2, label="Naiivi")
-    ax_eu.plot(ns, eu_sealed_n,  color="#4c8fd6", linewidth=2, label="Suljettu 2nd rat. = 1st rat.")
+    ax_eu.plot(ns, eu_2nd_n,  color="#4c8fd6", linewidth=2, label="Suljettu 2nd rat.")
+    ax_eu.plot(ns, eu_1st_n,  color="#9b59b6", linewidth=2, label="Suljettu 1st rat.")
     ax_eu.plot(ns, eu_english_n, color="#3daa6a", linewidth=2, linestyle="--", label="Eng. rat.")
     ax_eu.axhline(0, color="black", linewidth=1, linestyle="--")
     ax_eu.axvline(n, color="gray", linewidth=1, linestyle=":", alpha=0.8)
