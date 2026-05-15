@@ -320,7 +320,7 @@ def _(bid_adjustment, n, np, plt):
         eu_eng_ns[k]   = (np.mean(z_k[:, -1]) - np.mean(z_k[:, -2])) / ni
         wc_naive_ns[k] = np.mean(z_k[:, -2] > 0) * 100
         wc_2nd_ns[k]   = np.mean(z_k[:, -2] > cn_k) * 100
-        wc_eng_ns[k]   = np.mean(np.sum(z_k[:, :-1], axis=1) + z_k[:, -2] > 0) * 100
+        wc_eng_ns[k]   = np.mean(np.sum(z_k[:, :-2], axis=1) + 2 * z_k[:, -2] > 0) * 100
 
     fig2, axes = plt.subplots(1, 2, figsize=(12, 4))
 
